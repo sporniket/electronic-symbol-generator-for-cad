@@ -76,7 +76,7 @@ If not, see <https://www.gnu.org/licenses/>. 
             action="store",
             type=OutputFormat,
             required=False,
-            help=f"format of the output file : {[f.value for f in OutputFormat]}",
+            help=f"format of the output file : {[f.value for f in OutputFormat]}",
         )
         parser.add_argument(
             "--into",
@@ -96,4 +96,26 @@ If not, see <https://www.gnu.org/licenses/>. 
         sources = args.sources
 
         for s in sources:
-            print(f"File '{s}' may be processable.")
+            # checks input format by extension
+            isJsonSource = False
+            if s.name.endswith(".json"):
+                print(f"File '{s.name}' is deserializable.")
+                isJsonSource = True
+                if args.format == OutputFormat.JSON:
+                    print(f"Skipping already serialized file {s.name}")
+                    continue
+            elif s.name.endswith(".md"):
+                print(f"File '{s.name}' is processable.")
+            else:
+                print(f"File '{s.name}' is not processable, skip...")
+                continue
+
+            # do the processing
+            if args.format == OutputFormat.JSON:
+                print(f"load datasheet and serialize...")
+            elif args.format == OutputFormat.KICAD5:
+                print(f"load datasheet or deserialize json, generate '*.lib'...")
+            else:  # args.format == OutputFormat.KICAD6:
+                print(f"load datasheet or deserialize json, generate '*.kycad_sym'...")
+
+        print("Done")
