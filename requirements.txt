@@ -1,0 +1,4 @@
+### required third parties
+
+### required sporniket's
+electronic-package-descriptor-by-sporniket < 1.1.0
