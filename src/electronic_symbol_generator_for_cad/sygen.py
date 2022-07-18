@@ -116,10 +116,12 @@ If not, see <https://www.gnu.org/licenses/>. 
                 if isJsonSource:
                     print(f"skip already serialized file '{s.name}'")
                     continue
-                targetName = s.name[:-3]+'.json'
+                targetName = s.name[:-3] + ".json"
                 print(f"load datasheet and serialize into {targetName}...")
-                serialized = SerializerOfPackage().jsonFrom(ParserOfMarkdownDatasheet().parseLines(s.readlines()))
-                with open(targetName, 'w') as outfile:
+                serialized = SerializerOfPackage().jsonFrom(
+                    ParserOfMarkdownDatasheet().parseLines(s.readlines())
+                )
+                with open(targetName, "w") as outfile:
                     outfile.write(serialized)
             elif args.format == OutputFormat.KICAD5:
                 print(f"load datasheet or deserialize json, generate '*.lib'...")
