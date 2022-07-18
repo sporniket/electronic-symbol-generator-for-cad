@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. 
 import os
 import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, FileType
+from electronic_package_descriptor import *
 
 from typing import List, Union, Optional
 from enum import Enum
@@ -112,7 +113,14 @@ If not, see <https://www.gnu.org/licenses/>. 
 
             # do the processing
             if args.format == OutputFormat.JSON:
-                print(f"load datasheet and serialize...")
+                if isJsonSource:
+                    print(f"skip already serialized file '{s.name}'")
+                    continue
+                targetName = s.name[:-3]+'.json'
+                print(f"load datasheet and serialize into {targetName}...")
+                serialized = SerializerOfPackage().jsonFrom(ParserOfMarkdownDatasheet().parseLines(s.readlines()))
+                with open(targetName, 'w') as outfile:
+                    outfile.write(serialized)
             elif args.format == OutputFormat.KICAD5:
                 print(f"load datasheet or deserialize json, generate '*.lib'...")
             else:  # args.format == OutputFormat.KICAD6:
