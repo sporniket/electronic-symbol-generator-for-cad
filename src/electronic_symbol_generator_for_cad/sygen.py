@@ -28,9 +28,42 @@ from enum import Enum
 
 
 class OutputFormat(Enum):
+    """
+    The list of supported output format.
+
+    JSON is the serialization format, whereas the other value are for generation of symbols.
+    """
+
     JSON = "json"
     KICAD5 = "kicad5"
     KICAD6 = "kicad6"
+
+
+class SymbolGenerator:
+    """
+    The interface to implement by a specific output format
+    """
+
+    def __init__(self, p: PackageDescription):
+        """
+        A symbol generator works on a given package description.
+        """
+        pass
+
+    @property
+    def symbolSet() -> Dict[str, List[str]]:
+        """
+        A symbol generator create a set of symbol for a particular tool that uses a text file format to import them.
+
+        The symbol generator thus create a list of text lines for each symbol of the set.
+        """
+        pass
+
+    def emitSymbolSet(out):
+        """
+        The generator will stream the set of symbols using ``out.write(...)``.
+        """
+        pass
 
 
 class SymbolGeneratorCli:
