@@ -51,19 +51,34 @@ class SymbolGenerator:
         pass
 
     @property
-    def symbolSet() -> Dict[str, List[str]]:
+    def symbolSet(self) -> Dict[str, List[str]]:
         """
         A symbol generator create a set of symbol for a particular tool that uses a text file format to import them.
 
         The symbol generator thus create a list of text lines for each symbol of the set.
         """
-        pass
+        return {}
 
-    def emitSymbolSet(out):
+    def emitSymbolSet(self, out):
         """
         The generator will stream the set of symbols using ``out.write(...)``.
         """
         pass
+
+
+class SingleSymbolGenerator:
+    """
+    A delegate that generate a single symbol.
+    """
+    def __init__(self, p:PackageDescription):
+        pass
+    
+    @property
+    def symbol(self) -> List[str]:
+        """
+        A single symbol is a set of lines of text describing the symbol using the syntax of the supported CAD software.
+        """
+        return []
 
 
 class SymbolGeneratorCli:
