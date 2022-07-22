@@ -26,6 +26,8 @@ from electronic_package_descriptor import *
 from typing import List, Union, Optional
 from enum import Enum
 
+from .kicad5 import SymbolGeneratorForKicad5
+
 
 class OutputFormat(Enum):
     """
@@ -39,46 +41,13 @@ class OutputFormat(Enum):
     KICAD6 = "kicad6"
 
 
-class SymbolGenerator:
-    """
-    The interface to implement by a specific output format
-    """
-
-    def __init__(self, p: PackageDescription):
-        """
-        A symbol generator works on a given package description.
-        """
-        pass
-
-    @property
-    def symbolSet(self) -> Dict[str, List[str]]:
-        """
-        A symbol generator create a set of symbol for a particular tool that uses a text file format to import them.
-
-        The symbol generator thus create a list of text lines for each symbol of the set.
-        """
-        return {}
-
-    def emitSymbolSet(self, out):
-        """
-        The generator will stream the set of symbols using ``out.write(...)``.
-        """
-        pass
-
-
-class SingleSymbolGenerator:
-    """
-    A delegate that generate a single symbol.
-    """
-    def __init__(self, p:PackageDescription):
-        pass
-    
-    @property
-    def symbol(self) -> List[str]:
-        """
-        A single symbol is a set of lines of text describing the symbol using the syntax of the supported CAD software.
-        """
-        return []
+def prepareWork(s, isJsonSource: bool, extension: str) -> dict:
+    return {
+        "targetName": f"{s.name[:-5] if isJsonSource else s.name[:-3]}.{extension}",
+        "package": DeserializerOfPackage().packageFromJsonString("".join(s.readlines()))
+        if isJsonSource
+        else ParserOfMarkdownDatasheet().parseLines(s.readlines()),
+    }
 
 
 class SymbolGeneratorCli:
@@ -173,7 +142,16 @@ If not, see <https://www.gnu.org/licenses/>. 
                     outfile.write(serialized)
             elif args.format == OutputFormat.KICAD5:
                 print(f"load datasheet or deserialize json, generate '*.lib'...")
+                work = prepareWork(s, isJsonSource, "lib")
+                with (open(work["targetName"], "w")) as outfile:
+                    SymbolGeneratorForKicad5(work["package"]).emitSymbolSet(outfile)
             else:  # args.format == OutputFormat.KICAD6:
                 print(f"load datasheet or deserialize json, generate '*.kycad_sym'...")
+                targetName = f"{s.name[:-5] if isJsonSource else s.name[:-3]}.kycad_sym"
+                p = (
+                    DeserializerOfPackage.packageFromJsonString("".join(s.readlines()))
+                    if isJsonSource
+                    else ParserOfMarkdownDatasheet().parseLines(s.readlines())
+                )
 
         print("Done")

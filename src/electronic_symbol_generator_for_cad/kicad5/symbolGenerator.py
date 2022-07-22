@@ -18,32 +18,66 @@ You should have received a copy of the GNU General Public License along with Ele
 If not, see <https://www.gnu.org/licenses/>. 
 ---
 """
-from ..sygen import SymbolGenerator, SingleSymbolGenerator
+from typing import List, Dict
+
 from electronic_package_descriptor import *
+from ..symbolGenerator import (
+    SymbolGenerator,
+    SingleSymbolGenerator,
+    writeLinesWithSeparator,
+)
+
+from .comments import *
+from .pins import *
+from .symbols import *
+
+metrics = {
+    "spacing": 100,  # space between 2 pins
+    "margin": 200,  # minimal spacing between the border and the first pin, and the spacing between pins of the other side (north-south, and west-east)
+    "glyphWidth": 50,  # 90% of the glyphs MUST be have a width up to this value.
+}
+
 
 class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
-    def __init__(self, p:PackageDescription):
+    def __init__(self, p: PackageDescription):
         self.p = p
-    
+
     @property
     def symbol(self) -> List[str]:
-        return []
+        result = []
+        # prolog
+        result.extend(toTitle(f"{self.p.name} -- Multiple units symbol"))
+        # main text
 
+        for g in self.p.groupedPins:
+            # prolog
+            result.extend(toSubtitle(f"{g.designator} -- {g.comment}"))
+            # pins
+            # epilog
+
+        # ungrouped pins : others (no pwr, opwr or gnd)
+        # ungrouped pins : power distribution (pwr, opwr and gnd)
+        # epilog
+        return result
 
 
 class SymbolGeneratorForKicad5(SymbolGenerator):
-
-    def __init__(self, p:PackageDescription):
+    def __init__(self, p: PackageDescription):
+        self.p = p
         self.generators = {
-            'functionnal_multi_unit':SymbolGeneratorForKicad5_Functionnal_MultiUnit(p)
+            "functionnal_multi_unit": SymbolGeneratorForKicad5_Functionnal_MultiUnit(p)
         }
-    
+
     @property
     def symbolSet(self) -> Dict[str, List[str]]:
-        return {key:gen.symbol() for key,gen in self.generators}
+        return {key: self.generators[key].symbol for key in self.generators}
 
     def emitSymbolSet(self, out):
         # emit prolog
-        for gen in self.generators:
-            out.writelines(gen.symbol())
+        writeLinesWithSeparator(out, toBeginSymbolSet(self.p.name))
+        # body
+        sset = self.symbolSet
+        for k in sset:
+            writeLinesWithSeparator(out, sset[k])
         # emit epilog
+        writeLinesWithSeparator(out, toEndSymbolSet())

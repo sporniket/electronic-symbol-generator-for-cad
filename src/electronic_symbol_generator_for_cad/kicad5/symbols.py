@@ -30,6 +30,21 @@ class StyleOfField(Enum):
     BOLD_ITALIC = "IB"
 
 
+def toBeginSymbolSet(name: str) -> List[str]:
+    return [
+        "EESchema-LIBRARY Version 2.4",
+        "#encoding utf-8",
+        "#",
+        "#",
+        f"# Symbol set of : {name}",
+        "#",
+    ]
+
+
+def toEndSymbolSet() -> List[str]:
+    return ["#", "#End Library"]
+
+
 def toBeginSymbol(name: str, count: int = 1) -> List[str]:
     """
     Start a symbol description with the given name an unit count (MUST be >= 1).
@@ -62,11 +77,11 @@ def toFieldInvisibleVisible(
     return [f'F{index} "{name}" {x} {y} 50 H I L T{style.value}']
 
 
-def toContour(x1: int, y1: int, x2: int, y2: unit, unit: int = 0) -> List[str]:
+def toContour(x1: int, y1: int, x2: int, y2: int, unit: int = 0) -> List[str]:
     return [f"S {x1} {y1} {x2} {y2} {unit} 0 10 n"]
 
 
-def toSurface(x1: int, y1: int, x2: int, y2: unit, unit: int = 0) -> List[str]:
+def toSurface(x1: int, y1: int, x2: int, y2: int, unit: int = 0) -> List[str]:
     return [f"S {x1} {y1} {x2} {y2} {unit} 0 10 f"]
 
 

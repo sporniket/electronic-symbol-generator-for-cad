@@ -18,3 +18,7 @@ You should have received a copy of the GNU General Public License along with Ele
 If not, see <https://www.gnu.org/licenses/>. 
 ---
 """
+
+from .symbolGenerator import SymbolGeneratorForKicad5
+
+__all__ = ["SymbolGeneratorForKicad5"]
