@@ -87,3 +87,12 @@ class RailOfPins:
         elif self.length > rail.length:
             rail.fillToLength(self.length)
 
+class RectangularHolderOfRailsOfPins:
+    """
+    Model of an electronic graphic symbol consisting of a rectangle that can have pins on each side.
+    """
+    def __init__(self):
+        self.north = RailOfPins()
+        self.east = RailOfPins()
+        self.south = RailOfPins()
+        self.west = RailOfPins()
