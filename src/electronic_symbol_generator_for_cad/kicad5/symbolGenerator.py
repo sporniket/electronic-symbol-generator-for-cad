@@ -30,6 +30,7 @@ from ..symbolGenerator import (
 from .comments import *
 from .pins import *
 from .symbols import *
+from .kutils import *
 
 metrics = {
     "spacing": 100,  # space between 2 pins
@@ -54,33 +55,41 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
       (no pins on the north side of the unit, ever)
     """
 
-    def __init__(self, p: PackageDescription, metrics: Dict[str:int] = metrics):
+    def __init__(self, p: PackageDescription, m=metrics):
         self.p = p
-        self.metrics = metrics
+        self.metrics = m
 
     def organisePins(self, g):
         main = RectangularHolderOfRailsOfPins()
+        slots = g.slots
         if g.pattern == PatternOfGroup.BUS:
-            pass
+            if g.directionnality == Directionnality.IN:
+                main.west.push(slots["bus"])
+            else:
+                main.east.push(slots["bus"])
         elif g.pattern == PatternOfGroup.AMPOP_IO:
-            pass
+            ins = slots["in"]
+            main.west.push([ins[0], None, ins[1]])
+            main.east.push([None] + slots["out"] + [None])
         elif g.pattern == PatternOfGroup.AMPOP_VREF:
-            pass
+            ins = slots["in"]
+            main.north.pushSinglePin(ins[0])
+            main.south.pushSinglePin(ins[1])
         elif g.pattern == PatternOfGroup.POWER:
             pass
         else:
             # -- compute building metrics
-            hasTwoGroupsAtWest = 0 if "in" not in g or "others" not in g else 1
+            hasTwoGroupsAtWest = 0 if "in" not in slots or "others" not in slots else 1
             expectedLengthWest = (
-                (0 if "in" not in g.slots else len(g.slots["in"]))
-                + (0 if "others" not in g else len(g.slots["others"]))
+                (0 if "in" not in slots else len(slots["in"]))
+                + (0 if "others" not in slots else len(slots["others"]))
                 + hasTwoGroupsAtWest
             )
-            hasTwoGroupsAtEast = 0 if "out" not in g or "bi" not in g else 1
+            hasTwoGroupsAtEast = 0 if "out" not in slots or "bi" not in slots else 1
             expectedLengthEast = (
-                (0 if "out" not in g.slots else len(g.slots["out"]))
-                + (0 if "bi" not in g else len(g.slots["bi"]))
-                + (0 if "out" not in g or "bi" not in g else 1)
+                (0 if "out" not in slots else len(slots["out"]))
+                + (0 if "bi" not in slots else len(slots["bi"]))
+                + (0 if "out" not in slots or "bi" not in slots else 1)
             )
             fillerSizeWest = (
                 0
@@ -93,23 +102,23 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
                 else expectedLengthWest - expectedLengthEast
             )
             # -- build west rail
-            if "in" in g.slots:
-                main.west.push(g.slots["in"])
+            if "in" in slots:
+                main.west.push(slots["in"])
             if hasTwoGroupsAtWest == 1:
                 main.west.pushSinglePin(None)
             if fillerSizeWest > 0:
                 main.west.push([None for p in range(fillerSizeWest)])
-            if "others" in g.slots:
-                main.west.push(g.slots["others"])
+            if "others" in slots:
+                main.west.push(slots["others"])
             # -- build east rail
-            if "out" in g.slots:
-                main.east.push(g.slots["out"])
+            if "out" in slots:
+                main.east.push(slots["out"])
             if hasTwoGroupsAtEast == 1:
                 main.east.pushSinglePin(None)
             if fillerSizeEast > 0:
                 main.east.push([None for p in range(fillerSizeEast)])
-            if "out" in g.slots:
-                main.east.push(g.slots["out"])
+            if "out" in slots:
+                main.east.push(slots["out"])
         # -- Begin surface
         return main
 
@@ -118,13 +127,17 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         result = []
         # --- prepare ---
         ungroupedOthers = [
-            pin for pin in p.ungrouped if pin.type not in typesOfPowerDistributionPins
+            pin
+            for pin in self.p.ungroupedPins
+            if pin.type not in typesOfPowerDistributionPins
         ]
         ungroupedPower = [
-            pin for pin in p.ungrouped if pin.type in typesOfPowerDistributionPins
+            pin
+            for pin in self.p.ungroupedPins
+            if pin.type in typesOfPowerDistributionPins
         ]
         numberOfUnits = (
-            len(p.groupedPins)
+            len(self.p.groupedPins)
             + (1 if len(ungroupedOthers) > 0 else 0)
             + (1 if len(ungroupedPower) > 0 else 1)
         )
@@ -133,7 +146,8 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         # prolog
         result.extend(toTitle(f"{self.p.name} -- Multiple units symbol"))
         # main text
-        result.extend(toBeginSymbol((p.name + "_mu").upper(), numberOfUnits))
+        result.extend(toBeginSymbol((self.p.name + "_mu").upper(), numberOfUnits))
+        result.extend(toBeginDraw())
 
         currentUnit = 1
         for g in self.p.groupedPins:
@@ -143,13 +157,42 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
             # pins
             # -- prepare rails
             main = self.organisePins(g)
-            result.extend(toSurface(0,0,metrics["spacing"]*main.width, -metrics["spacing"]*main.height,currentUnit))
+            result.extend(
+                toSurface(
+                    0,
+                    0,
+                    metrics["spacing"] * main.width,
+                    -metrics["spacing"] * main.height,
+                    currentUnit,
+                )
+            )
+            result.extend(
+                toStackOfPins(
+                    0,
+                    0,
+                    SideOfComponent.WEST,
+                    metrics["spacing"],
+                    [None] + main.west.items,
+                    currentUnit,
+                ),
+            )
+            result.extend(
+                toStackOfPins(
+                    0,
+                    0,
+                    SideOfComponent.EAST,
+                    metrics["spacing"],
+                    [None] + main.east.items,
+                    currentUnit,
+                ),
+            )
             # epilog
             # next
             currentUnit += 1
         # ungrouped pins : others (no pwr, opwr or gnd)
         # ungrouped pins : power distribution (pwr, opwr and gnd)
         # epilog
+        result.extend(toEndDraw())
         result.extend(toEndSymbol())
         return result
 

@@ -49,7 +49,7 @@ def toBeginSymbol(name: str, count: int = 1) -> List[str]:
     """
     Start a symbol description with the given name an unit count (MUST be >= 1).
     """
-    validCount = min(1, count)
+    validCount = max(1, count)
     return [f"DEF {name} U 0 50 Y Y {validCount} L N"]
 
 

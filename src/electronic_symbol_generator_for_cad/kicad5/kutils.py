@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. 
 """
 from typing import List, Dict, Union
 from electronic_package_descriptor import PinDescription
+from .pins import *
 
 
 class RailOfPins:
@@ -54,6 +55,11 @@ class RailOfPins:
         if delta > 0:
             self.items += [None for p in range(delta)]
 
+    def fillToLengthBefore(self, lengthToReach: int):
+        delta = lengthToReach - self.length
+        if delta > 0:
+            self.items = [None for p in range(delta)] + self.items
+
     def fillToLengthCentered(self, lengthToReach: int):
         delta = lengthToReach - self.length
         if delta > 0:
@@ -82,7 +88,7 @@ class RailOfPins:
 
         self.items = self.items[indexOfFirst:indexOfLast]
 
-    def equalize(self, rail: RailOfPins):
+    def equalize(self, rail: "RailOfPins"):
         """
         Make this rail and the provided one have the same length.
 
@@ -118,6 +124,7 @@ class RectangularHolderOfRailsOfPins:
             + self.west.width
             + self.east.width
             + 2 * self.padding
+            + 1  # to add a space before rendering the first pin
         )
 
     @property
@@ -131,4 +138,5 @@ class RectangularHolderOfRailsOfPins:
             + self.north.width
             + self.south.width
             + 2 * self.padding
+            + 1  # to add a space before rendering the first pin
         )
