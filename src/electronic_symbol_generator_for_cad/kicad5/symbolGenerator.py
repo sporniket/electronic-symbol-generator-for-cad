@@ -38,7 +38,9 @@ metrics = {
 }
 
 typesOfPowerDistributionPins = [
-    TypeOfPin.POWER, TypeOfPin.OUTPUT_POWER, TypeOfPin.GROUND
+    TypeOfPin.POWER,
+    TypeOfPin.OUTPUT_POWER,
+    TypeOfPin.GROUND,
 ]
 
 
@@ -51,30 +53,100 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
     * the text fields and the text describing the unit will be tacked at x = 0 and just above the main rectangle
       (no pins on the north side of the unit, ever)
     """
-    def __init__(self, p: PackageDescription, metrics:Dict[str:int] = metrics):
+
+    def __init__(self, p: PackageDescription, metrics: Dict[str:int] = metrics):
         self.p = p
+        self.metrics = metrics
+
+    def organisePins(self, g):
+        main = RectangularHolderOfRailsOfPins()
+        if g.pattern == PatternOfGroup.BUS:
+            pass
+        elif g.pattern == PatternOfGroup.AMPOP_IO:
+            pass
+        elif g.pattern == PatternOfGroup.AMPOP_VREF:
+            pass
+        elif g.pattern == PatternOfGroup.POWER:
+            pass
+        else:
+            # -- compute building metrics
+            hasTwoGroupsAtWest = 0 if "in" not in g or "others" not in g else 1
+            expectedLengthWest = (
+                (0 if "in" not in g.slots else len(g.slots["in"]))
+                + (0 if "others" not in g else len(g.slots["others"]))
+                + hasTwoGroupsAtWest
+            )
+            hasTwoGroupsAtEast = 0 if "out" not in g or "bi" not in g else 1
+            expectedLengthEast = (
+                (0 if "out" not in g.slots else len(g.slots["out"]))
+                + (0 if "bi" not in g else len(g.slots["bi"]))
+                + (0 if "out" not in g or "bi" not in g else 1)
+            )
+            fillerSizeWest = (
+                0
+                if expectedLengthWest >= expectedLengthEast
+                else expectedLengthEast - expectedLengthWest
+            )
+            fillerSizeEast = (
+                0
+                if expectedLengthEast >= expectedLengthWest
+                else expectedLengthWest - expectedLengthEast
+            )
+            # -- build west rail
+            if "in" in g.slots:
+                main.west.push(g.slots["in"])
+            if hasTwoGroupsAtWest == 1:
+                main.west.pushSinglePin(None)
+            if fillerSizeWest > 0:
+                main.west.push([None for p in range(fillerSizeWest)])
+            if "others" in g.slots:
+                main.west.push(g.slots["others"])
+            # -- build east rail
+            if "out" in g.slots:
+                main.east.push(g.slots["out"])
+            if hasTwoGroupsAtEast == 1:
+                main.east.pushSinglePin(None)
+            if fillerSizeEast > 0:
+                main.east.push([None for p in range(fillerSizeEast)])
+            if "out" in g.slots:
+                main.east.push(g.slots["out"])
+        # -- Begin surface
+        return main
 
     @property
     def symbol(self) -> List[str]:
         result = []
         # --- prepare ---
-        ungroupedOthers = [pin for pin in p.ungrouped if pin.type not in typesOfPowerDistributionPins]
-        ungroupedPower = [pin for pin in p.ungrouped if pin.type in typesOfPowerDistributionPins]
-        numberOfUnits=len(p.groupedPins) + (1 if len(ungroupedOthers) > 0 else 0) + (1 if len(ungroupedPower) > 0 else 1)
+        ungroupedOthers = [
+            pin for pin in p.ungrouped if pin.type not in typesOfPowerDistributionPins
+        ]
+        ungroupedPower = [
+            pin for pin in p.ungrouped if pin.type in typesOfPowerDistributionPins
+        ]
+        numberOfUnits = (
+            len(p.groupedPins)
+            + (1 if len(ungroupedOthers) > 0 else 0)
+            + (1 if len(ungroupedPower) > 0 else 1)
+        )
 
         # --- generate statements ---
         # prolog
         result.extend(toTitle(f"{self.p.name} -- Multiple units symbol"))
         # main text
-        result.extend(toBeginSymbol((p.name+"_mu").upper(), numberOfUnits))
+        result.extend(toBeginSymbol((p.name + "_mu").upper(), numberOfUnits))
 
+        currentUnit = 1
         for g in self.p.groupedPins:
             # prolog
             result.extend(toSubtitle(f"{g.designator} -- {g.comment}"))
             # specific text
             # pins
+            # -- prepare rails
+            main = self.organisePins(g)
+            result.extend(toSurface(0,0,metrics["spacing"]*main.width, -metrics["spacing"]*main.height,currentUnit))
             # epilog
-
+            # next
+            currentUnit += 1
         # ungrouped pins : others (no pwr, opwr or gnd)
         # ungrouped pins : power distribution (pwr, opwr and gnd)
         # epilog
