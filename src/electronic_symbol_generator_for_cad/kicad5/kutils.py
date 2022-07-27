@@ -106,12 +106,51 @@ class RectangularHolderOfRailsOfPins:
     Model of an electronic graphic symbol consisting of a rectangle that can have pins on each side.
     """
 
-    def __init__(self, padding: int = 2):
+    def __init__(self):
         self.north = RailOfPins()
         self.east = RailOfPins()
         self.south = RailOfPins()
         self.west = RailOfPins()
-        self.padding = padding
+
+    @property
+    def paddingNorth(self) -> int:
+        """
+        Padding from the north side.
+
+        Returns:
+            int: padding
+        """
+        return int(self.north.width / 2 + 1 if self.north.width > 0 else 0)
+
+    @property
+    def paddingWest(self) -> int:
+        """
+        Padding from the West side.
+
+        Returns:
+            int: padding
+        """
+        return int(self.west.width / 2 + 1 if self.west.width > 0 else 0)
+
+    @property
+    def paddingSouth(self) -> int:
+        """
+        Padding from the south side.
+
+        Returns:
+            int: padding
+        """
+        return int(self.south.width / 2 + 1 if self.south.width > 0 else 0)
+
+    @property
+    def paddingEast(self) -> int:
+        """
+        Padding from the east side.
+
+        Returns:
+            int: padding
+        """
+        return int(self.east.width / 2 + 1 if self.east.width > 0 else 0)
 
     @property
     def width(self) -> int:
@@ -121,9 +160,8 @@ class RectangularHolderOfRailsOfPins:
                 if self.north.length > self.south.length
                 else self.south.length
             )
-            + self.west.width
-            + self.east.width
-            + 2 * self.padding
+            + self.paddingWest
+            + self.paddingEast
             + 1  # to add a space before rendering the first pin
         )
 
@@ -135,8 +173,7 @@ class RectangularHolderOfRailsOfPins:
                 if self.west.length > self.east.length
                 else self.east.length
             )
-            + self.north.width
-            + self.south.width
-            + 2 * self.padding
+            + self.paddingNorth
+            + self.paddingSouth
             + 1  # to add a space before rendering the first pin
         )

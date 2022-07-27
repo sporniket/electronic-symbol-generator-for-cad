@@ -150,7 +150,7 @@ def toStackOfPins(
         else 0
     )
     dy = (
-        offset
+        -offset
         if sideOfComponent == SideOfComponent.EAST
         or sideOfComponent == SideOfComponent.WEST
         else 0

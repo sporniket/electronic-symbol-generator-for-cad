@@ -55,7 +55,7 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
       (no pins on the north side of the unit, ever)
     """
 
-    def __init__(self, p: PackageDescription, m=metrics):
+    def __init__(self, p: PackageDescription, m: Dict[str, int] = metrics):
         self.p = p
         self.metrics = m
 
@@ -143,6 +143,7 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         )
 
         # --- generate statements ---
+        spacing = metrics["spacing"]
         # prolog
         result.extend(toTitle(f"{self.p.name} -- Multiple units symbol"))
         # main text
@@ -161,27 +162,27 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
                 toSurface(
                     0,
                     0,
-                    metrics["spacing"] * main.width,
-                    -metrics["spacing"] * main.height,
+                    spacing * main.width,
+                    -spacing * main.height,
                     currentUnit,
                 )
             )
             result.extend(
                 toStackOfPins(
                     0,
-                    0,
+                    spacing * main.paddingNorth,
                     SideOfComponent.WEST,
-                    metrics["spacing"],
+                    spacing,
                     [None] + main.west.items,
                     currentUnit,
                 ),
             )
             result.extend(
                 toStackOfPins(
-                    0,
-                    0,
+                    spacing * main.width,
+                    spacing * main.paddingNorth,
                     SideOfComponent.EAST,
-                    metrics["spacing"],
+                    spacing,
                     [None] + main.east.items,
                     currentUnit,
                 ),
