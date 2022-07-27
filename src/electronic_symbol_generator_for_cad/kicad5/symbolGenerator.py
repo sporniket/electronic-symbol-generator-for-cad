@@ -59,7 +59,7 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         self.p = p
         self.metrics = m
 
-    def organisePins(self, g):
+    def organisePins(self, g) -> RectangularHolderOfRailsOfPins:
         main = RectangularHolderOfRailsOfPins()
         slots = g.slots
         if g.pattern == PatternOfGroup.BUS:
@@ -122,6 +122,46 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         # -- Begin surface
         return main
 
+    def renderGroup(
+        self, g: GroupOfPins, spacing: int, currentUnit: int, result: List[str]
+    ):
+        # prolog
+        result.extend(toSubtitle(f"{g.designator} -- {g.comment}"))
+        # specific text
+        # pins
+        # -- prepare rails
+        main = self.organisePins(g)
+        result.extend(
+            toSurface(
+                0,
+                0,
+                spacing * main.width,
+                -spacing * main.height,
+                currentUnit,
+            )
+        )
+        result.extend(
+            toStackOfPins(
+                0,
+                spacing * main.paddingNorth,
+                SideOfComponent.WEST,
+                spacing,
+                [None] + main.west.items,
+                currentUnit,
+            ),
+        )
+        result.extend(
+            toStackOfPins(
+                spacing * main.width,
+                spacing * main.paddingNorth,
+                SideOfComponent.EAST,
+                spacing,
+                [None] + main.east.items,
+                currentUnit,
+            ),
+        )
+        # epilog
+
     @property
     def symbol(self) -> List[str]:
         result = []
@@ -139,7 +179,7 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         numberOfUnits = (
             len(self.p.groupedPins)
             + (1 if len(ungroupedOthers) > 0 else 0)
-            + (1 if len(ungroupedPower) > 0 else 1)
+            + (1 if len(ungroupedPower) > 0 else 0)
         )
 
         # --- generate statements ---
@@ -152,46 +192,26 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
 
         currentUnit = 1
         for g in self.p.groupedPins:
-            # prolog
-            result.extend(toSubtitle(f"{g.designator} -- {g.comment}"))
-            # specific text
-            # pins
-            # -- prepare rails
-            main = self.organisePins(g)
-            result.extend(
-                toSurface(
-                    0,
-                    0,
-                    spacing * main.width,
-                    -spacing * main.height,
-                    currentUnit,
-                )
-            )
-            result.extend(
-                toStackOfPins(
-                    0,
-                    spacing * main.paddingNorth,
-                    SideOfComponent.WEST,
-                    spacing,
-                    [None] + main.west.items,
-                    currentUnit,
-                ),
-            )
-            result.extend(
-                toStackOfPins(
-                    spacing * main.width,
-                    spacing * main.paddingNorth,
-                    SideOfComponent.EAST,
-                    spacing,
-                    [None] + main.east.items,
-                    currentUnit,
-                ),
-            )
-            # epilog
-            # next
+            self.renderGroup(g, spacing, currentUnit, result)
             currentUnit += 1
         # ungrouped pins : others (no pwr, opwr or gnd)
+        if len(ungroupedOthers) > 0:
+            self.renderGroup(
+                GroupOfPins("OTHERS", 9999, "Other pins", ungroupedOthers),
+                spacing,
+                currentUnit,
+                result,
+            )
+            currentUnit += 1
         # ungrouped pins : power distribution (pwr, opwr and gnd)
+        if len(ungroupedPower) > 0:
+            self.renderGroup(
+                GroupOfPins("POWER", 9999, "Power distribution", ungroupedPower),
+                spacing,
+                currentUnit,
+                result,
+            )
+            currentUnit += 1
         # epilog
         result.extend(toEndDraw())
         result.extend(toEndSymbol())
