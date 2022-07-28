@@ -53,6 +53,10 @@ def toBeginSymbol(name: str, count: int = 1) -> List[str]:
     return [f"DEF {name} U 0 50 Y Y {validCount} L N"]
 
 
+def toAliases(aliases: List[str]) -> List[str]:
+    return [f"ALIAS {' '.join([a+'_mu' for a in aliases]).upper()}"]
+
+
 def toEndSymbol() -> List[str]:
     return ["ENDDEF"]
 
@@ -71,7 +75,7 @@ def toFieldVisible(
     return [f'F{index} "{name}" {x} {y} 50 H V L T{style.value}']
 
 
-def toFieldInvisibleVisible(
+def toFieldInvisible(
     index: int, name: str, x: int, y: int, style: StyleOfField
 ) -> List[str]:
     return [f'F{index} "{name}" {x} {y} 50 H I L T{style.value}']

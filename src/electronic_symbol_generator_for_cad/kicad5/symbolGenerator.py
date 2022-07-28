@@ -188,6 +188,16 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         result.extend(toTitle(f"{self.p.name} -- Multiple units symbol"))
         # main text
         result.extend(toBeginSymbol((self.p.name + "_mu").upper(), numberOfUnits))
+        if len(self.p.aliases) > 0:
+            result.extend(toAliases(self.p.aliases))
+        result += toFieldVisible(0, self.p.prefix, 0, 300, StyleOfField.NORMAL)
+        result += toFieldVisible(1, self.p.name, 0, 200, StyleOfField.BOLD)
+        if self.p.footprintDesignator != None:
+            result += toFieldInvisible(
+                2, self.p.footprintDesignator, 0, 400, StyleOfField.NORMAL
+            )
+        if self.p.datasheet != None:
+            result += toFieldInvisible(3, self.p.datasheet, 0, 500, StyleOfField.NORMAL)
         result.extend(toBeginDraw())
 
         currentUnit = 1
