@@ -76,7 +76,8 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
             main.north.pushSinglePin(ins[0])
             main.south.pushSinglePin(ins[1])
         elif g.pattern == PatternOfGroup.POWER:
-            pass
+            main.west.push(slots["in"])
+            main.south.push(slots["out"])
         else:
             # -- compute building metrics
             hasTwoGroupsAtWest = 0 if "in" not in slots or "others" not in slots else 1
@@ -117,8 +118,27 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
                 main.east.pushSinglePin(None)
             if fillerSizeEast > 0:
                 main.east.push([None for p in range(fillerSizeEast)])
-            if "out" in slots:
-                main.east.push(slots["out"])
+            if "bi" in slots:
+                main.east.push(slots["bi"])
+        # manage others
+        if "others" in slots:
+            needSpacerAtWest = True if main.west.length > 0 else False
+            needSpacerAtEast = True if main.east.length > 0 else False
+            for pin in slots["others"]:
+                if pin.type == TypeOfPin.POWER:
+                    if needSpacerAtWest:
+                        main.west.push([None, pin])
+                        needSpacerAtWest = False
+                    else:
+                        main.west.pushSinglePin(pin)
+                elif pin.type == TypeOfPin.GROUND:
+                    main.south.pushSinglePin(pin)
+                else:
+                    if needSpacerAtEast:
+                        main.east.push([None, pin])
+                        needSpacerAtEast = False
+                    else:
+                        main.east.pushSinglePin(pin)
         # -- Begin surface
         return main
 
@@ -158,6 +178,16 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
                 SideOfComponent.EAST,
                 spacing,
                 [None] + main.east.items,
+                currentUnit,
+            ),
+        )
+        result.extend(
+            toStackOfPins(
+                spacing * main.paddingWest,
+                -spacing * main.height,
+                SideOfComponent.SOUTH,
+                spacing,
+                [None] + main.south.items,
                 currentUnit,
             ),
         )
@@ -208,7 +238,7 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         # ungrouped pins : others (no pwr, opwr or gnd)
         if len(ungroupedOthers) > 0:
             self.renderGroup(
-                GroupOfPins("OTHERS", 9999, "Other pins", ungroupedOthers),
+                GroupOfPins("OTHERS", 9998, "Other pins", ungroupedOthers),
                 spacing,
                 currentUnit,
                 result,
