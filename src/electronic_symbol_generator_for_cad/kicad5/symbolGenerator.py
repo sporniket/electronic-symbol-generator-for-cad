@@ -128,6 +128,7 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         # prolog
         result.extend(toSubtitle(f"{g.designator} -- {g.comment}"))
         # specific text
+        result += toText(g.comment, 0, 100, currentUnit)
         # pins
         # -- prepare rails
         main = self.organisePins(g)
