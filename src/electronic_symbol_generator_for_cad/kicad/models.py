@@ -20,7 +20,6 @@ If not, see <https://www.gnu.org/licenses/>. 
 """
 from typing import List, Dict, Union
 from electronic_package_descriptor import PinDescription
-from .pins import *
 
 
 class RailOfPins:
