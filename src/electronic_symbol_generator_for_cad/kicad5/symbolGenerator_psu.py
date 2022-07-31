@@ -125,7 +125,7 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
         # main text
         result.extend(toBeginSymbol((self.p.name + "_phy").upper()))
         if len(self.p.aliases) > 0:
-            result.extend(toAliases(self.p.aliases))
+            result.extend(toAliases([a + "_phy" for a in self.p.aliases]))
         result += toFieldVisible(
             0, self.p.prefix, xText, yTop + 200, StyleOfField.NORMAL
         )

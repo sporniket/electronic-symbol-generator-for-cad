@@ -54,7 +54,7 @@ def toBeginSymbol(name: str, count: int = 1) -> List[str]:
 
 
 def toAliases(aliases: List[str]) -> List[str]:
-    return [f"ALIAS {' '.join([a+'_mu' for a in aliases]).upper()}"]
+    return [f"ALIAS {' '.join(aliases).upper()}"]
 
 
 def toEndSymbol() -> List[str]:

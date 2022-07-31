@@ -133,7 +133,7 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         # main text
         result.extend(toBeginSymbol((self.p.name + "_mu").upper(), numberOfUnits))
         if len(self.p.aliases) > 0:
-            result.extend(toAliases(self.p.aliases))
+            result.extend(toAliases([a + "_mu" for a in self.p.aliases]))
         result += toFieldVisible(0, self.p.prefix, 0, 300, StyleOfField.NORMAL)
         result += toFieldVisible(1, self.p.name, 0, 200, StyleOfField.BOLD)
         if self.p.footprintDesignator != None:
