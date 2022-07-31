@@ -40,6 +40,32 @@ class LayoutManager:
     def apply(self) -> RectangularHolderOfRailsOfPins:
         return RailOfPins()
 
+class LayoutManagerForSingleUnit(LayoutManager):
+    def __init__(self, p: PackageDescription):
+        self.p = p
+    
+   
+    def apply(self) -> RectangularHolderOfRailsOfPins:
+        result = RectangularHolderOfRailsOfPins()
+
+        # algorithm
+        # 2 slots for north : ungrouped power in and power out
+        # 2 slots for south : ungrouped ground and dnc
+        # 1 slots for ungrouped others : either first bi (rank 0) or last monodirectionnal (rank 99999)
+
+        # retrieve grouped pins, append group of ungrouped others if any.
+        # 4 lists to sort : BI, IN, OUT, BI_BUS (bi buses are out of bi/in/out)
+        # for each BI : append to result, fill to length, store last position for separator
+        # for each IN : append to west, store last position for separator
+        # for each OUT : append to east, store last position for separator
+        # sort bus by decreasing size
+        # for each BI_BUS : append to shortest side, store last position for separator
+        
+        # render the 4 sides
+        # render the bloc separators
+        # the end
+
+        return result
 
 class LayoutManagerForSingleGroup(LayoutManager):
     def __init__(self, g: GroupOfPins):
