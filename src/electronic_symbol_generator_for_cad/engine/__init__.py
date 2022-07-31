@@ -26,4 +26,5 @@ __all__ = [
     "RailOfPins",
     "RectangularHolderOfRailsOfPins",
     "LayoutManagerForSingleGroup",
+    "LayoutManagerForPhysicalSingleUnit",
 ]

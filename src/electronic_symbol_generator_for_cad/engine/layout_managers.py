@@ -122,8 +122,9 @@ class LayoutManagerForSingleGroup(LayoutManager):
         # -- Begin surface
         return main
 
+
 class LayoutManagerForPhysicalSingleUnit(LayoutManager):
-    def __init__(self,p:PackageDescription):
+    def __init__(self, p: PackageDescription):
         self.p = p
 
     @property
@@ -133,68 +134,83 @@ class LayoutManagerForPhysicalSingleUnit(LayoutManager):
         allThePins += self.p.ungroupedPins
         for g in self.p.groupedPins:
             allThePins += g.pins
-        return sorted(iterable, key=PinDescription.designator.fullname)
-    
+        return sorted(allThePins, key=lambda p: p.designator.fullname)
+
     def apply(self) -> RectangularHolderOfRailsOfPins:
-        layout = p.layoutOfPins.value
+        layout = self.p.layoutOfPins.value
         return getattr(self, f"apply_{layout}")()
-    
+
     def apply_BRD(self):
-        sortedPins=self.pins
-        halfLength=int(len(sortedPins) / 2)
+        sortedPins = self.pins
+        halfLength = int(len(sortedPins) / 2)
 
         result = RectangularHolderOfRailsOfPins()
         result.west.push(sortedPins[:halfLength])
         result.east.push(sortedPins[halfLength:])
 
         return result
-    
+
     def apply_DIM(self):
-        sortedPins=self.pins
+        sortedPins = self.pins
 
         result = RectangularHolderOfRailsOfPins()
         result.west.push(sortedPins[0::2])
         result.east.push(sortedPins[1::2])
 
         return result
-    
+
     def apply_DIP(self):
-        sortedPins=self.pins
-        halfLength=int(len(sortedPins) / 2)
+        sortedPins = self.pins
+        halfLength = int(len(sortedPins) / 2)
 
         result = RectangularHolderOfRailsOfPins()
         result.west.push(sortedPins[:halfLength])
         result.east.push(list(reversed(sortedPins[halfLength:])))
 
         return result
-    
+
     def apply_LCC(self):
-        sortedPins=self.pins
-        sideLength=int(len(sortedPins)/4)
-        deltaLeft=int(sideLength/2) + 1
+        sortedPins = self.pins
+        sideLength = int(len(sortedPins) / 4)
+        deltaLeft = int(sideLength / 2) + 1
 
         result = RectangularHolderOfRailsOfPins()
-        result.west.push(sortedPins[deltaLeft:deltaLeft+sideLength])
-        result.south.push(sortedPins[deltaLeft+sideLength:deltaLeft+2*sideLength])
-        result.east.push(list(reversed(sortedPins[deltaLeft+2*sideLength:deltaLeft+3*sideLength])))
-        result.north.push(list(reversed(sortedPins[deltaLeft+3*sideLength:len(sortedPins)]+sortedPins[0:deltaLeft])))
+        result.west.push(sortedPins[deltaLeft : deltaLeft + sideLength])
+        result.south.push(
+            sortedPins[deltaLeft + sideLength : deltaLeft + 2 * sideLength]
+        )
+        result.east.push(
+            list(
+                reversed(
+                    sortedPins[deltaLeft + 2 * sideLength : deltaLeft + 3 * sideLength]
+                )
+            )
+        )
+        result.north.push(
+            list(
+                reversed(
+                    sortedPins[deltaLeft + 3 * sideLength : len(sortedPins)]
+                    + sortedPins[0:deltaLeft]
+                )
+            )
+        )
 
         return result
-    
+
     def apply_QFP(self):
-        sortedPins=self.pins
-        sideLength=int(len(sortedPins)/4)
+        sortedPins = self.pins
+        sideLength = int(len(sortedPins) / 4)
 
         result = RectangularHolderOfRailsOfPins()
         result.west.push(sortedPins[0:sideLength])
-        result.south.push(sortedPins[sideLength:2*sideLength])
-        result.east.push(list(reversed(sortedPins[2*sideLength:3*sideLength])))
-        result.north.push(list(reversed(sortedPins[3*sideLength:len(sortedPins)])))
+        result.south.push(sortedPins[sideLength : 2 * sideLength])
+        result.east.push(list(reversed(sortedPins[2 * sideLength : 3 * sideLength])))
+        result.north.push(list(reversed(sortedPins[3 * sideLength : len(sortedPins)])))
 
         return result
-    
+
     def apply_SIM(self):
-        sortedPins=self.pins
+        sortedPins = self.pins
 
         result = RectangularHolderOfRailsOfPins()
         result.west.push(sortedPins)
