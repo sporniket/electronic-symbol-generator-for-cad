@@ -26,7 +26,7 @@ from ..symbolGenerator import (
     SingleSymbolGenerator,
     writeLinesWithSeparator,
 )
-from ..kicad import RectangularHolderOfRailsOfPins
+from ..engine import RectangularHolderOfRailsOfPins
 
 from .comments import *
 from .pins import *

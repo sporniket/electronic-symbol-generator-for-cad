@@ -27,10 +27,6 @@ from ..symbolGenerator import (
     writeLinesWithSeparator,
 )
 
-# from ..kicad import RectangularHolderOfRailsOfPins
-
-# from .comments import *
-# from .pins import *
 from .symbols import *
 from .symbolGenerator_fmu import SymbolGeneratorForKicad5_Functionnal_MultiUnit
 
