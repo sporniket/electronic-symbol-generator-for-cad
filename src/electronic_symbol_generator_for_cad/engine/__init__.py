@@ -22,9 +22,11 @@ If not, see <https://www.gnu.org/licenses/>. 
 from .models import *
 from .layout_managers import *
 
+
 __all__ = [
     "RailOfPins",
     "RectangularHolderOfRailsOfPins",
     "LayoutManagerForSingleGroup",
     "LayoutManagerForPhysicalSingleUnit",
+    "typesOfPowerDistributionPins",
 ]

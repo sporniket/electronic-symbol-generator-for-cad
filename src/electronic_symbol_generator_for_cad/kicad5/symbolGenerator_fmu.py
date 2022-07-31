@@ -26,19 +26,16 @@ from ..symbolGenerator import (
     SingleSymbolGenerator,
     writeLinesWithSeparator,
 )
-from ..engine import RectangularHolderOfRailsOfPins, LayoutManagerForSingleGroup
+from ..engine import (
+    RectangularHolderOfRailsOfPins,
+    LayoutManagerForSingleGroup,
+    typesOfPowerDistributionPins,
+)
 
 from .comments import *
 from .pins import *
 from .symbols import *
 from .metrics import metrics
-
-
-typesOfPowerDistributionPins = [
-    TypeOfPin.POWER,
-    TypeOfPin.OUTPUT_POWER,
-    TypeOfPin.GROUND,
-]
 
 
 class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):

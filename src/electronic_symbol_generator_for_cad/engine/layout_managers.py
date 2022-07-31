@@ -23,6 +23,12 @@ from electronic_package_descriptor import *
 
 from .models import RectangularHolderOfRailsOfPins
 
+typesOfPowerDistributionPins = (
+    TypeOfPin.POWER,
+    TypeOfPin.OUTPUT_POWER,
+    TypeOfPin.GROUND,
+)
+
 
 class LayoutManager:
     """
@@ -60,12 +66,8 @@ class LayoutManagerForSingleGroup(LayoutManager):
             main.south.push(slots["out"])
         else:
             # -- compute building metrics
-            hasTwoGroupsAtWest = 0 if "in" not in slots or "others" not in slots else 1
-            expectedLengthWest = (
-                (0 if "in" not in slots else len(slots["in"]))
-                + (0 if "others" not in slots else len(slots["others"]))
-                + hasTwoGroupsAtWest
-            )
+            expectedLengthWest = 0 if "in" not in slots else len(slots["in"])
+
             hasTwoGroupsAtEast = 0 if "out" not in slots or "bi" not in slots else 1
             expectedLengthEast = (
                 (0 if "out" not in slots else len(slots["out"]))
@@ -85,12 +87,8 @@ class LayoutManagerForSingleGroup(LayoutManager):
             # -- build west rail
             if "in" in slots:
                 main.west.push(slots["in"])
-            if hasTwoGroupsAtWest == 1:
-                main.west.pushSinglePin(None)
             if fillerSizeWest > 0:
                 main.west.push([None for p in range(fillerSizeWest)])
-            if "others" in slots:
-                main.west.push(slots["others"])
             # -- build east rail
             if "out" in slots:
                 main.east.push(slots["out"])
@@ -102,6 +100,19 @@ class LayoutManagerForSingleGroup(LayoutManager):
                 main.east.push(slots["bi"])
         # manage others
         if "others" in slots:
+            others = slots["others"]
+            print(others)
+            # -- pins that are not power/ground
+            needSpacerAtEast = True if main.east.length > 0 else False
+            for pin in others:
+                if pin.type not in typesOfPowerDistributionPins:
+                    if needSpacerAtEast:
+                        main.east.push([None, pin])
+                        needSpacerAtEast = False
+                    else:
+                        main.east.pushSinglePin(pin)
+
+            # -- pins that are power/ground
             needSpacerAtWest = True if main.west.length > 0 else False
             needSpacerAtEast = True if main.east.length > 0 else False
             for pin in slots["others"]:
@@ -113,7 +124,7 @@ class LayoutManagerForSingleGroup(LayoutManager):
                         main.west.pushSinglePin(pin)
                 elif pin.type == TypeOfPin.GROUND:
                     main.south.pushSinglePin(pin)
-                else:
+                elif pin.type == TypeOfPin.OUTPUT_POWER:
                     if needSpacerAtEast:
                         main.east.push([None, pin])
                         needSpacerAtEast = False
