@@ -34,7 +34,7 @@ from .symbols import *
 from .metrics import metrics
 
 
-class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
+class SymbolGeneratorForKicad5_Physical(SingleSymbolGenerator):
     """
     Symbol generator for physical layout, single-unit symbols.
 
@@ -45,6 +45,16 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
     def __init__(self, p: PackageDescription, m: Dict[str, int] = metrics):
         self.p = p
         self.metrics = m
+
+    def renderStackOfPins(
+        self,
+        x: int,
+        y: int,
+        sideOfComponent: SideOfComponent,
+        offset: int,
+        pins: List[PinDescription],
+    ) -> List[str]:
+        return []
 
     def render(
         self,
@@ -63,7 +73,7 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
         # -- prepare rails
         result.extend(toSurface(x, y, x + mainWidth, y - mainHeight))
         result.extend(
-            toStackOfPins(
+            self.renderStackOfPins(
                 x,
                 y - spacing * main.paddingNorth,
                 SideOfComponent.WEST,
@@ -72,7 +82,7 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
             )
         )
         result.extend(
-            toStackOfPins(
+            self.renderStackOfPins(
                 x + spacing * main.paddingWest,
                 y,
                 SideOfComponent.NORTH,
@@ -81,7 +91,7 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
             )
         )
         result.extend(
-            toStackOfPins(
+            self.renderStackOfPins(
                 x + mainWidth,
                 y - spacing * main.paddingNorth,
                 SideOfComponent.EAST,
@@ -90,7 +100,7 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
             )
         )
         result.extend(
-            toStackOfPins(
+            self.renderStackOfPins(
                 x + spacing * main.paddingWest,
                 y - mainHeight,
                 SideOfComponent.SOUTH,
@@ -101,9 +111,18 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
         # epilog
 
     @property
+    def suffix(self) -> str:
+        return ""
+
+    @property
+    def title(self) -> str:
+        return f"{self.p.name} -- To specify"
+
+    @property
     def symbol(self) -> List[str]:
         result = []
         # --- prepare ---
+        suffix = self.suffix
         main = LayoutManagerForPhysicalSingleUnit(self.p).apply()
 
         spacing = metrics["spacing"]
@@ -121,11 +140,11 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
 
         # --- generate statements ---
         # prolog
-        result.extend(toTitle(f"{self.p.name} -- Physical, single unit symbol"))
+        result.extend(toTitle(self.title))
         # main text
-        result.extend(toBeginSymbol((self.p.name + "_phy").upper()))
+        result.extend(toBeginSymbol((self.p.name + suffix).upper()))
         if len(self.p.aliases) > 0:
-            result.extend(toAliases([a + "_phy" for a in self.p.aliases]))
+            result.extend(toAliases([a + suffix for a in self.p.aliases]))
         result += toFieldVisible(
             0, self.p.prefix, xText, yTop + 200, StyleOfField.NORMAL
         )
@@ -146,3 +165,59 @@ class SymbolGeneratorForKicad5_Physical_SingleUnit(SingleSymbolGenerator):
         result.extend(toEndDraw())
         result.extend(toEndSymbol())
         return result
+
+
+class SymbolGeneratorForKicad5_Physical_SingleUnit(SymbolGeneratorForKicad5_Physical):
+    """
+    Symbol generator for physical layout, single-unit symbols.
+
+    The symbol main rectangle will be centered around origin. The text will be rendered above the
+    top-right corner.
+    """
+
+    @property
+    def suffix(self) -> str:
+        return "_phy"
+
+    @property
+    def title(self) -> str:
+        return f"{self.p.name} -- Physical, single unit symbol"
+
+    def renderStackOfPins(
+        self,
+        x: int,
+        y: int,
+        sideOfComponent: SideOfComponent,
+        offset: int,
+        pins: List[PinDescription],
+    ) -> List[str]:
+        return toStackOfPins(x, y, sideOfComponent, offset, pins)
+
+
+class SymbolGeneratorForKicad5_Physical_SingleUnit_Socket(
+    SymbolGeneratorForKicad5_Physical
+):
+    """
+    Symbol generator for physical layout, single-unit symbols.
+
+    The symbol main rectangle will be centered around origin. The text will be rendered above the
+    top-right corner.
+    """
+
+    @property
+    def suffix(self) -> str:
+        return "_socket"
+
+    @property
+    def title(self) -> str:
+        return f"{self.p.name} -- Physical socket, single unit symbol"
+
+    def renderStackOfPins(
+        self,
+        x: int,
+        y: int,
+        sideOfComponent: SideOfComponent,
+        offset: int,
+        pins: List[PinDescription],
+    ) -> List[str]:
+        return toStackOfPins(x, y, sideOfComponent, offset, pins, forcePassive=True)

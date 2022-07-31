@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>. 
 from typing import List
 from enum import Enum
 
-from electronic_package_descriptor import PinDescription
+from electronic_package_descriptor import PinDescription, TypeOfPin
 
 
 class SideOfComponent(Enum):
@@ -140,6 +140,8 @@ def toStackOfPins(
     offset: int,
     pins: List[PinDescription],
     unit: int = 0,
+    *,
+    forcePassive: bool = False,
 ) -> List[str]:
     locx = x
     locy = y
@@ -159,7 +161,9 @@ def toStackOfPins(
     result = []
     for pin in pins:
         if pin != None:
-            typeOfPin = pin.type.value
+            typeOfPin = (
+                TypeOfPin.OUTPUT_PASSIVE.value if forcePassive else pin.type.value
+            )
             result.extend(
                 toPin(
                     pin.name,

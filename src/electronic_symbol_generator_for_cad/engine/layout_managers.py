@@ -101,7 +101,6 @@ class LayoutManagerForSingleGroup(LayoutManager):
         # manage others
         if "others" in slots:
             others = slots["others"]
-            print(others)
             # -- pins that are not power/ground
             needSpacerAtEast = True if main.east.length > 0 else False
             for pin in others:
