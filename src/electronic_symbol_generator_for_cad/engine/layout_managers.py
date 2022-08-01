@@ -43,17 +43,86 @@ class LayoutManager:
 class LayoutManagerForSingleUnit(LayoutManager):
     def __init__(self, p: PackageDescription):
         self.p = p
+        self.outlineThrough = [] # List of separator outline from west to east side : (top, length)
+        self.outlineWest = [] # List of separator outline on the west side : (top, length)
+        self.outlineEast = [] # List of separator outline on the east side : (top, length)
+
+    def placeUngroupedPins(self, r:RectangularHolderOfRailsOfPins()):
+        # to north
+        powerIns = []
+        inputs = []
+        powerOut = []
+        # to south
+        grounds = []
+        dncs = []
+        bidis = []
+        outputs = []
+        # shuffle
+        for pin in self.p.ungroupedPins:
+            if pin.type == TypeOfPin.POWER:
+                powerIns.append(pin)
+            elif pin.type == TypeOfPin.OUTPUT_POWER:
+                powerOut.append(pin)
+            elif pin.type == TypeOfPin.GROUND:
+                grounds.append(pin)
+            elif pin.type == TypeOfPin.DO_NOT_CONNECT:
+                dncs.append(pin)
+            elif pin.directionnality == Directionnality.IN:
+                inputs.append(pin)
+            elif pin.directionnality == Directionnality.OUT:
+                outputs.append(pin)
+            elif pin.directionnality == Directionnality.BI:
+                bidis.append(pin)
+            else:
+                print(f"WARN -- unsupported pin {pin.designator.fullname}, type {pin.type}, directionnality {pin.directionnality}")
+        # build north side
+        for l in [powerIns, inputs, powerOut]:
+            r.north.push(l, withSeparator = True)
+        for l in [grounds, dncs, bidis, outputs]:
+            r.south.push(l, withSeparator = True)
+        # center north and south
+        if r.north.length > r.south.length:
+            r.south.fillToLengthCentered(r.north.length)
+        elif r.north.length < r.south.length:
+            r.north.fillToLengthCentered(r.south.length)
+
     
    
     def apply(self) -> RectangularHolderOfRailsOfPins:
         result = RectangularHolderOfRailsOfPins()
+        outlineThrough = []
+        outlineWest = []
+        outlineEast = []
 
         # algorithm
-        # 2 slots for north : ungrouped power in and power out
-        # 2 slots for south : ungrouped ground and dnc
-        # 1 slots for ungrouped others : either first bi (rank 0) or last monodirectionnal (rank 99999)
+
+        # -- process ungrouped pins
+        self.placeUngroupedPins(result)
 
         # retrieve grouped pins, append group of ungrouped others if any.
+        separatorAtWest = result.paddingNorth
+        separatorAtEast = separatorAtWest
+        # -- shuffle groups
+        bidibuses = []
+        bidis = []
+        inputs = []
+        outputs = []
+        for g in sorted(self.p.groupedPins, key=lambda g:g.rank):
+            if g.directionnality == Directionnality.BI:
+                if "bus" in g.slots:
+                    bidibuses.append(g)
+                else:
+                    bidis.append(g)
+            elif g.directionnality == Directionnality.IN:
+                inputs.append(g)
+            elif g.directionnality == Directionnality.OUT:
+                outputs.append(g)
+            else:
+                print(f"WARN - unsupported group '{g.designator}', rank {g.rank}, directionnality {g.directionnality}, comment : {g.comment}")
+        # -- place bidis
+        # -- place inputs
+        # -- place outputs
+        # -- place bidirectionnal buses, in reversed order by size, to 
         # 4 lists to sort : BI, IN, OUT, BI_BUS (bi buses are out of bi/in/out)
         # for each BI : append to result, fill to length, store last position for separator
         # for each IN : append to west, store last position for separator
@@ -65,6 +134,9 @@ class LayoutManagerForSingleUnit(LayoutManager):
         # render the bloc separators
         # the end
 
+        self.outlineThrough = outlineThrough
+        self.outlineWest = outlineWest
+        self.outlineEast = outlineEast
         return result
 
 class LayoutManagerForSingleGroup(LayoutManager):

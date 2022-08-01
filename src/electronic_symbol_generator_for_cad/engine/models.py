@@ -21,7 +21,6 @@ If not, see <https://www.gnu.org/licenses/>. 
 from typing import List, Dict, Union
 from electronic_package_descriptor import PinDescription
 
-
 class RailOfPins:
     """
     Collection of pins to put on one side of a component symbol.
@@ -39,8 +38,10 @@ class RailOfPins:
     def length(self) -> int:
         return len(self.items)
 
-    def push(self, pins: List[PinDescription]):
+    def push(self, pins: List[PinDescription],*,withSeparator = False):
         if len(pins) > 0:
+            if withSeparator and self.length > 0:
+                self.items.append(None)
             self.items.extend(pins)
             self.width = max(
                 [self.width] + [0 if p is None else len(p.name) for p in pins]
