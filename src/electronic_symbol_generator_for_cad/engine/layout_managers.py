@@ -86,6 +86,18 @@ class LayoutManagerForSingleUnit(LayoutManager):
         elif r.north.length < r.south.length:
             r.north.fillToLengthCentered(r.south.length)
 
+    def appendBidirectionnalGroupToHolder(self, g:GroupOfPins, main:RectangularHolderOfRailsOfPins)->int:
+        """
+        Place the pins of the groups on the west and east side of the provided holder, and return the occupied length of the section.
+
+        Args:
+            g (GroupOfPins): the group of pins to append
+            main (RectangularHolderOfRailsOfPins): the holder of the pins
+
+        Returns:
+            int: the length of pins added to both sides.
+        """
+
     
    
     def apply(self) -> RectangularHolderOfRailsOfPins:
@@ -120,6 +132,84 @@ class LayoutManagerForSingleUnit(LayoutManager):
             else:
                 print(f"WARN - unsupported group '{g.designator}', rank {g.rank}, directionnality {g.directionnality}, comment : {g.comment}")
         # -- place bidis
+        if len(bidis) > 0:
+            outlineThrough.append(separatorAtWest)
+            for g in bidis:
+                slots = g.slots
+                if g.pattern == PatternOfGroup.AMPOP_IO:
+                    ins = slots["in"]
+                    main.west.push([ins[0], None, ins[1]])
+                    main.east.push([None] + slots["out"] + [None])
+                elif g.pattern == PatternOfGroup.POWER:
+                    main.west.push(slots["in"])
+                    main.east.push(slots["out"])
+                else:
+                    # -- compute building metrics
+                    HERE !!
+                    expectedLengthWest = 0 if "in" not in slots else len(slots["in"])
+
+                    hasTwoGroupsAtEast = 0 if "out" not in slots or "bi" not in slots else 1
+                    expectedLengthEast = (
+                        (0 if "out" not in slots else len(slots["out"]))
+                        + (0 if "bi" not in slots else len(slots["bi"]))
+                        + (0 if "out" not in slots or "bi" not in slots else 1)
+                    )
+                    fillerSizeWest = (
+                        0
+                        if expectedLengthWest >= expectedLengthEast
+                        else expectedLengthEast - expectedLengthWest
+                    )
+                    fillerSizeEast = (
+                        0
+                        if expectedLengthEast >= expectedLengthWest
+                        else expectedLengthWest - expectedLengthEast
+                    )
+                    # -- build west rail
+                    if "in" in slots:
+                        main.west.push(slots["in"])
+                    if fillerSizeWest > 0:
+                        main.west.push([None for p in range(fillerSizeWest)])
+                    # -- build east rail
+                    if "out" in slots:
+                        main.east.push(slots["out"])
+                    if hasTwoGroupsAtEast == 1:
+                        main.east.pushSinglePin(None)
+                    if fillerSizeEast > 0:
+                        main.east.push([None for p in range(fillerSizeEast)])
+                    if "bi" in slots:
+                        main.east.push(slots["bi"])
+                # manage others
+                if "others" in slots:
+                    others = slots["others"]
+                    # -- pins that are not power/ground
+                    needSpacerAtEast = True if main.east.length > 0 else False
+                    for pin in others:
+                        if pin.type not in typesOfPowerDistributionPins:
+                            if needSpacerAtEast:
+                                main.east.push([None, pin])
+                                needSpacerAtEast = False
+                            else:
+                                main.east.pushSinglePin(pin)
+
+                    # -- pins that are power/ground
+                    needSpacerAtWest = True if main.west.length > 0 else False
+                    needSpacerAtEast = True if main.east.length > 0 else False
+                    for pin in slots["others"]:
+                        if pin.type == TypeOfPin.POWER:
+                            if needSpacerAtWest:
+                                main.west.push([None, pin])
+                                needSpacerAtWest = False
+                            else:
+                                main.west.pushSinglePin(pin)
+                        elif pin.type == TypeOfPin.GROUND:
+                            main.south.pushSinglePin(pin)
+                        elif pin.type == TypeOfPin.OUTPUT_POWER:
+                            if needSpacerAtEast:
+                                main.east.push([None, pin])
+                                needSpacerAtEast = False
+                            else:
+                                main.east.pushSinglePin(pin)
+
         # -- place inputs
         # -- place outputs
         # -- place bidirectionnal buses, in reversed order by size, to 
