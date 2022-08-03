@@ -82,7 +82,7 @@ def toFieldInvisible(
 
 
 def toContour(x1: int, y1: int, x2: int, y2: int, unit: int = 0) -> List[str]:
-    return [f"S {x1} {y1} {x2} {y2} {unit} 0 10 n"]
+    return [f"S {x1} {y1} {x2} {y2} {unit} 0 10 N"]
 
 
 def toSurface(x1: int, y1: int, x2: int, y2: int, unit: int = 0) -> List[str]:

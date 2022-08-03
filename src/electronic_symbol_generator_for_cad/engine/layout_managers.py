@@ -121,7 +121,7 @@ class LayoutManagerForSingleUnit(LayoutManager):
         self.placeUngroupedPins(result)
 
         # retrieve grouped pins, append group of ungrouped others if any.
-        separatorAtWest = result.paddingNorth
+        separatorAtWest = result.west.length
         separatorAtEast = separatorAtWest
         # -- shuffle groups
         bidibuses = []

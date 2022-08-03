@@ -71,17 +71,24 @@ class SymbolGeneratorForKicad5_Functionnal(SingleSymbolGenerator):
         result = []
         halfOffset = int(offset / 2)
         if len(outlinesThrough) > 1:
+            x2 = x + widthFull * offset
             for i in range(len(outlinesThrough) - 1):
-                # render outlines going through
-                pass
+                y1 = y - outlinesThrough[i] * offset - offset
+                y2 = y - outlinesThrough[i + 1] * offset - offset
+                result += toContour(x, y1, x2, y2)
         if len(outlinesWest) > 1:
+            x2 = x + widthWest * offset
             for i in range(len(outlinesWest) - 1):
-                # render outlines on the west side
-                pass
+                y1 = y - outlinesWest[i] * offset - offset
+                y2 = y - outlinesWest[i + 1] * offset - offset
+                result += toContour(x, y1, x2, y2)
         if len(outlinesEast) > 1:
+            x2 = x + widthFull * offset
+            x1 = x2 - widthEast * offset
             for i in range(len(outlinesEast) - 1):
-                # render outlines on the east side
-                pass
+                y1 = y - outlinesEast[i] * offset - offset
+                y2 = y - outlinesEast[i + 1] * offset - offset
+                result += toContour(1, y1, x2, y2)
         return result
 
     def render(
@@ -106,7 +113,7 @@ class SymbolGeneratorForKicad5_Functionnal(SingleSymbolGenerator):
         result.extend(
             self.renderOutlines(
                 x,
-                y,
+                y - main.paddingNorth * spacing,
                 main.width,
                 main.paddingWest,
                 main.paddingEast,
