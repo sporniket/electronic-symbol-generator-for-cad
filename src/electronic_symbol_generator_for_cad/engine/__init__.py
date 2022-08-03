@@ -27,6 +27,7 @@ __all__ = [
     "RailOfPins",
     "RectangularHolderOfRailsOfPins",
     "LayoutManagerForSingleGroup",
+    "LayoutManagerForSingleUnit",
     "LayoutManagerForPhysicalSingleUnit",
     "typesOfPowerDistributionPins",
 ]
