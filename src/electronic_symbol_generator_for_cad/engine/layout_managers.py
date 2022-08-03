@@ -147,16 +147,16 @@ class LayoutManagerForSingleUnit(LayoutManager):
             outlineThrough.append(separatorAtWest)
             for g in bidis:
                 # spacing before
-                main.west.pushSinglePin(None)
-                main.east.pushSinglePin(None)
+                result.west.pushSinglePin(None)
+                result.east.pushSinglePin(None)
                 slots = g.slots
                 if g.pattern == PatternOfGroup.AMPOP_IO:
                     ins = slots["in"]
-                    main.west.push([ins[0], None, ins[1]])
-                    main.east.push([None] + slots["out"] + [None])
+                    result.west.push([ins[0], None, ins[1]])
+                    result.east.push([None] + slots["out"] + [None])
                 elif g.pattern == PatternOfGroup.POWER:
-                    main.west.push(slots["in"])
-                    main.east.push(slots["out"])
+                    result.west.push(slots["in"])
+                    result.east.push(slots["out"])
                 else:
                     # -- general case, bidirectionnal
                     hasTwoGroupAtWest = (
@@ -188,24 +188,24 @@ class LayoutManagerForSingleUnit(LayoutManager):
                     )
                     # -- build west rail
                     if "in" in slots:
-                        main.west.push(slots["in"])
+                        result.west.push(slots["in"])
                     if hasTwoGroupAtWest == 1:
-                        main.west.pushSinglePin(None)
+                        result.west.pushSinglePin(None)
                     if fillerSizeWest > 0:
-                        main.west.push([None for p in range(fillerSizeWest)])
+                        result.west.push([None for p in range(fillerSizeWest)])
                     if "others" in slots:
-                        main.west.push(slots["others"])
+                        result.west.push(slots["others"])
 
                     # -- build east rail
                     if "out" in slots:
-                        main.east.push(slots["out"])
+                        result.east.push(slots["out"])
                     if hasTwoGroupsAtEast == 1:
-                        main.east.pushSinglePin(None)
+                        result.east.pushSinglePin(None)
                     if fillerSizeEast > 0:
-                        main.east.push([None for p in range(fillerSizeEast)])
+                        result.east.push([None for p in range(fillerSizeEast)])
                     if "bi" in slots:
-                        main.east.push(slots["bi"])
-                separatorAtWest = main.west.length
+                        result.east.push(slots["bi"])
+                separatorAtWest = result.west.length
                 separatorAtEast = separatorAtWest
                 outlineThrough.append(separatorAtWest)
         # -- place inputs
@@ -213,44 +213,44 @@ class LayoutManagerForSingleUnit(LayoutManager):
         if len(inputs) > 0:
             for g in inputs:
                 # spacing before
-                main.west.pushSinglePin(None)
+                result.west.pushSinglePin(None)
                 slots = g.slots
                 hasTwoGroupAtWest = (
                     0 if "in" not in slots or "others" not in slots else 1
                 )
                 if "in" in slots:
-                    main.west.push(slots["in"])
+                    result.west.push(slots["in"])
                 if hasTwoGroupAtWest == 1:
-                    main.west.pushSinglePin(None)
+                    result.west.pushSinglePin(None)
                 if "others" in slots:
-                    main.west.push(slots["others"])
-                separatorAtWest = main.west.length
+                    result.west.push(slots["others"])
+                separatorAtWest = result.west.length
                 outlineWest.append(separatorAtWest)
         # -- place outputs
         outlineEast.append(separatorAtEast)
         if len(outputs) > 0:
             for g in outputs:
                 # spacing before
-                main.west.pushSinglePin(None)
+                result.west.pushSinglePin(None)
                 slots = g.slots
                 hasTwoGroupAtEast = (
                     0 if "in" not in slots or "others" not in slots else 1
                 )
                 if "in" in slots:
-                    main.west.push(slots["in"])
+                    result.west.push(slots["in"])
                 if hasTwoGroupAtEast == 1:
-                    main.west.pushSinglePin(None)
+                    result.west.pushSinglePin(None)
                 if "others" in slots:
-                    main.west.push(slots["others"])
-                separatorAtEast = main.west.length
+                    result.west.push(slots["others"])
+                separatorAtEast = result.west.length
                 outlineEast.append(separatorAtEast)
         # -- place bidirectionnal buses, in reversed order by size, to
         if len(bidibuses) > 0:
             # distribute bidirectionnal buses evenly (pin-count wise)
             # by first sorting by size in reverse order,
             # then append each group to the shorter side.
-            toWest = True if main.west.length <= main.east.length else False
-            rail = main.west if toWest else main.east
+            toWest = True if result.west.length <= result.east.length else False
+            rail = result.west if toWest else result.east
             outline = outlineWest if toWest else outlineEast
             for g in sorted(bidis, key=lambda g: g.length, reverse=True):
                 # spacing before
@@ -258,12 +258,12 @@ class LayoutManagerForSingleUnit(LayoutManager):
                 rail.push(g.slots["bus"])
                 outline.append(rail.length)
                 # assess next side to append to
-                toWest = True if main.west.length <= main.east.length else False
-                rail = main.west if toWest else main.east
+                toWest = True if result.west.length <= result.east.length else False
+                rail = result.west if toWest else result.east
                 outline = outlineWest if toWest else outlineEast
         # final spacing
-        main.west.pushSinglePin(None)
-        main.east.pushSinglePin(None)
+        result.west.pushSinglePin(None)
+        result.east.pushSinglePin(None)
 
         # save the outline points
         self.outlineThrough = outlineThrough
