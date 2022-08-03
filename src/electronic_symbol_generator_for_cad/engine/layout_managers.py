@@ -40,14 +40,21 @@ class LayoutManager:
     def apply(self) -> RectangularHolderOfRailsOfPins:
         return RailOfPins()
 
+
 class LayoutManagerForSingleUnit(LayoutManager):
     def __init__(self, p: PackageDescription):
         self.p = p
-        self.outlineThrough = [] # List of separator outline from west to east side : (top, length)
-        self.outlineWest = [] # List of separator outline on the west side : (top, length)
-        self.outlineEast = [] # List of separator outline on the east side : (top, length)
+        self.outlineThrough = (
+            []
+        )  # List of separator outline from west to east side : (top, length)
+        self.outlineWest = (
+            []
+        )  # List of separator outline on the west side : (top, length)
+        self.outlineEast = (
+            []
+        )  # List of separator outline on the east side : (top, length)
 
-    def placeUngroupedPins(self, r:RectangularHolderOfRailsOfPins()):
+    def placeUngroupedPins(self, r: RectangularHolderOfRailsOfPins()):
         # to north
         powerIns = []
         inputs = []
@@ -74,19 +81,23 @@ class LayoutManagerForSingleUnit(LayoutManager):
             elif pin.directionnality == Directionnality.BI:
                 bidis.append(pin)
             else:
-                print(f"WARN -- unsupported pin {pin.designator.fullname}, type {pin.type}, directionnality {pin.directionnality}")
+                print(
+                    f"WARN -- unsupported pin {pin.designator.fullname}, type {pin.type}, directionnality {pin.directionnality}"
+                )
         # build north side
         for l in [powerIns, inputs, powerOut]:
-            r.north.push(l, withSeparator = True)
+            r.north.push(l, withSeparator=True)
         for l in [grounds, dncs, bidis, outputs]:
-            r.south.push(l, withSeparator = True)
+            r.south.push(l, withSeparator=True)
         # center north and south
         if r.north.length > r.south.length:
             r.south.fillToLengthCentered(r.north.length)
         elif r.north.length < r.south.length:
             r.north.fillToLengthCentered(r.south.length)
 
-    def appendBidirectionnalGroupToHolder(self, g:GroupOfPins, main:RectangularHolderOfRailsOfPins)->int:
+    def appendBidirectionnalGroupToHolder(
+        self, g: GroupOfPins, main: RectangularHolderOfRailsOfPins
+    ) -> int:
         """
         Place the pins of the groups on the west and east side of the provided holder, and return the occupied length of the section.
 
@@ -98,8 +109,6 @@ class LayoutManagerForSingleUnit(LayoutManager):
             int: the length of pins added to both sides.
         """
 
-    
-   
     def apply(self) -> RectangularHolderOfRailsOfPins:
         result = RectangularHolderOfRailsOfPins()
         outlineThrough = []
@@ -119,7 +128,7 @@ class LayoutManagerForSingleUnit(LayoutManager):
         bidis = []
         inputs = []
         outputs = []
-        for g in sorted(self.p.groupedPins, key=lambda g:g.rank):
+        for g in sorted(self.p.groupedPins, key=lambda g: g.rank):
             if g.directionnality == Directionnality.BI:
                 if "bus" in g.slots:
                     bidibuses.append(g)
@@ -130,11 +139,16 @@ class LayoutManagerForSingleUnit(LayoutManager):
             elif g.directionnality == Directionnality.OUT:
                 outputs.append(g)
             else:
-                print(f"WARN - unsupported group '{g.designator}', rank {g.rank}, directionnality {g.directionnality}, comment : {g.comment}")
+                print(
+                    f"WARN - unsupported group '{g.designator}', rank {g.rank}, directionnality {g.directionnality}, comment : {g.comment}"
+                )
         # -- place bidis
         if len(bidis) > 0:
             outlineThrough.append(separatorAtWest)
             for g in bidis:
+                # spacing before
+                main.west.pushSinglePin(None)
+                main.east.pushSinglePin(None)
                 slots = g.slots
                 if g.pattern == PatternOfGroup.AMPOP_IO:
                     ins = slots["in"]
@@ -144,15 +158,23 @@ class LayoutManagerForSingleUnit(LayoutManager):
                     main.west.push(slots["in"])
                     main.east.push(slots["out"])
                 else:
-                    # -- compute building metrics
-                    HERE !!
-                    expectedLengthWest = 0 if "in" not in slots else len(slots["in"])
+                    # -- general case, bidirectionnal
+                    hasTwoGroupAtWest = (
+                        0 if "in" not in slots or "others" not in slots else 1
+                    )
+                    expectedLengthWest = (
+                        (0 if "in" not in slots else len(slots["in"]))
+                        + (0 if "others" not in slots else len(slots["in"]))
+                        + hasTwoGroupAtWest
+                    )
 
-                    hasTwoGroupsAtEast = 0 if "out" not in slots or "bi" not in slots else 1
+                    hasTwoGroupsAtEast = (
+                        0 if "out" not in slots or "bi" not in slots else 1
+                    )
                     expectedLengthEast = (
                         (0 if "out" not in slots else len(slots["out"]))
                         + (0 if "bi" not in slots else len(slots["bi"]))
-                        + (0 if "out" not in slots or "bi" not in slots else 1)
+                        + hasTwoGroupsAtEast
                     )
                     fillerSizeWest = (
                         0
@@ -167,8 +189,13 @@ class LayoutManagerForSingleUnit(LayoutManager):
                     # -- build west rail
                     if "in" in slots:
                         main.west.push(slots["in"])
+                    if hasTwoGroupAtWest == 1:
+                        main.west.pushSinglePin(None)
                     if fillerSizeWest > 0:
                         main.west.push([None for p in range(fillerSizeWest)])
+                    if "others" in slots:
+                        main.west.push(slots["others"])
+
                     # -- build east rail
                     if "out" in slots:
                         main.east.push(slots["out"])
@@ -178,56 +205,74 @@ class LayoutManagerForSingleUnit(LayoutManager):
                         main.east.push([None for p in range(fillerSizeEast)])
                     if "bi" in slots:
                         main.east.push(slots["bi"])
-                # manage others
-                if "others" in slots:
-                    others = slots["others"]
-                    # -- pins that are not power/ground
-                    needSpacerAtEast = True if main.east.length > 0 else False
-                    for pin in others:
-                        if pin.type not in typesOfPowerDistributionPins:
-                            if needSpacerAtEast:
-                                main.east.push([None, pin])
-                                needSpacerAtEast = False
-                            else:
-                                main.east.pushSinglePin(pin)
-
-                    # -- pins that are power/ground
-                    needSpacerAtWest = True if main.west.length > 0 else False
-                    needSpacerAtEast = True if main.east.length > 0 else False
-                    for pin in slots["others"]:
-                        if pin.type == TypeOfPin.POWER:
-                            if needSpacerAtWest:
-                                main.west.push([None, pin])
-                                needSpacerAtWest = False
-                            else:
-                                main.west.pushSinglePin(pin)
-                        elif pin.type == TypeOfPin.GROUND:
-                            main.south.pushSinglePin(pin)
-                        elif pin.type == TypeOfPin.OUTPUT_POWER:
-                            if needSpacerAtEast:
-                                main.east.push([None, pin])
-                                needSpacerAtEast = False
-                            else:
-                                main.east.pushSinglePin(pin)
-
+                separatorAtWest = main.west.length
+                separatorAtEast = separatorAtWest
+                outlineThrough.append(separatorAtWest)
         # -- place inputs
+        outlineWest.append(separatorAtWest)
+        if len(inputs) > 0:
+            for g in inputs:
+                # spacing before
+                main.west.pushSinglePin(None)
+                slots = g.slots
+                hasTwoGroupAtWest = (
+                    0 if "in" not in slots or "others" not in slots else 1
+                )
+                if "in" in slots:
+                    main.west.push(slots["in"])
+                if hasTwoGroupAtWest == 1:
+                    main.west.pushSinglePin(None)
+                if "others" in slots:
+                    main.west.push(slots["others"])
+                separatorAtWest = main.west.length
+                outlineWest.append(separatorAtWest)
         # -- place outputs
-        # -- place bidirectionnal buses, in reversed order by size, to 
-        # 4 lists to sort : BI, IN, OUT, BI_BUS (bi buses are out of bi/in/out)
-        # for each BI : append to result, fill to length, store last position for separator
-        # for each IN : append to west, store last position for separator
-        # for each OUT : append to east, store last position for separator
-        # sort bus by decreasing size
-        # for each BI_BUS : append to shortest side, store last position for separator
-        
-        # render the 4 sides
-        # render the bloc separators
-        # the end
+        outlineEast.append(separatorAtEast)
+        if len(outputs) > 0:
+            for g in outputs:
+                # spacing before
+                main.west.pushSinglePin(None)
+                slots = g.slots
+                hasTwoGroupAtEast = (
+                    0 if "in" not in slots or "others" not in slots else 1
+                )
+                if "in" in slots:
+                    main.west.push(slots["in"])
+                if hasTwoGroupAtEast == 1:
+                    main.west.pushSinglePin(None)
+                if "others" in slots:
+                    main.west.push(slots["others"])
+                separatorAtEast = main.west.length
+                outlineEast.append(separatorAtEast)
+        # -- place bidirectionnal buses, in reversed order by size, to
+        if len(bidibuses) > 0:
+            # distribute bidirectionnal buses evenly (pin-count wise)
+            # by first sorting by size in reverse order,
+            # then append each group to the shorter side.
+            toWest = True if main.west.length <= main.east.length else False
+            rail = main.west if toWest else main.east
+            outline = outlineWest if toWest else outlineEast
+            for g in sorted(bidis, key=lambda g: g.length, reverse=True):
+                # spacing before
+                rail.pushSinglePin(None)
+                rail.push(g.slots["bus"])
+                outline.append(rail.length)
+                # assess next side to append to
+                toWest = True if main.west.length <= main.east.length else False
+                rail = main.west if toWest else main.east
+                outline = outlineWest if toWest else outlineEast
+        # final spacing
+        main.west.pushSinglePin(None)
+        main.east.pushSinglePin(None)
 
+        # save the outline points
         self.outlineThrough = outlineThrough
         self.outlineWest = outlineWest
         self.outlineEast = outlineEast
+
+        # ready to render
         return result
+
 
 class LayoutManagerForSingleGroup(LayoutManager):
     def __init__(self, g: GroupOfPins):
