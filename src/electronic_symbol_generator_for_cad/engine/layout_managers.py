@@ -130,7 +130,7 @@ class LayoutManagerForSingleUnit(LayoutManager):
         outputs = []
         for g in sorted(self.p.groupedPins, key=lambda g: g.rank):
             if g.directionnality == Directionnality.BI:
-                if "bus" in g.slots:
+                if g.pattern == PatternOfGroup.BUS:
                     bidibuses.append(g)
                 else:
                     bidis.append(g)
@@ -258,7 +258,7 @@ class LayoutManagerForSingleUnit(LayoutManager):
             toWest = True if result.west.length <= result.east.length else False
             rail = result.west if toWest else result.east
             outline = outlineWest if toWest else outlineEast
-            for g in sorted(bidis, key=lambda g: g.length, reverse=True):
+            for g in sorted(bidibuses, key=lambda g: len(g.pins), reverse=True):
                 # spacing before
                 rail.pushSinglePin(None)
                 rail.push(g.slots["bus"])
