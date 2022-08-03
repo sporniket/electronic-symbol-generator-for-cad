@@ -83,4 +83,3 @@ class SingleSymbolGenerator:
     @property
     def title(self) -> str:
         return f"{self.p.name}"
-

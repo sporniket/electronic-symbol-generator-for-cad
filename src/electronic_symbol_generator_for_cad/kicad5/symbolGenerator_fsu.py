@@ -33,6 +33,7 @@ from .pins import *
 from .symbols import *
 from .metrics import metrics
 
+
 class SymbolGeneratorForKicad5_Functionnal(SingleSymbolGenerator):
     """
     Symbol generator for functionnal layout, single-unit symbols.
@@ -65,20 +66,20 @@ class SymbolGeneratorForKicad5_Functionnal(SingleSymbolGenerator):
         offset: int,
         outlinesThrough: List[int],
         outlinesWest: List[int],
-        outlinesEast: List[int]
+        outlinesEast: List[int],
     ) -> List[str]:
         result = []
         halfOffset = int(offset / 2)
         if len(outlinesThrough) > 1:
-            for i in range(len(outlinesThrough)-1):
+            for i in range(len(outlinesThrough) - 1):
                 # render outlines going through
                 pass
         if len(outlinesWest) > 1:
-            for i in range(len(outlinesWest)-1):
+            for i in range(len(outlinesWest) - 1):
                 # render outlines on the west side
                 pass
         if len(outlinesEast) > 1:
-            for i in range(len(outlinesEast)-1):
+            for i in range(len(outlinesEast) - 1):
                 # render outlines on the east side
                 pass
         return result
@@ -102,7 +103,19 @@ class SymbolGeneratorForKicad5_Functionnal(SingleSymbolGenerator):
         # pins
         # -- prepare rails
         result.extend(toSurface(x, y, x + mainWidth, y - mainHeight))
-        result.extend(self.renderOutlines(x, y, main.width, main.paddingWest, main.paddingEast, spacing, outlinesThrough, outlinesWest, outlinesEast))
+        result.extend(
+            self.renderOutlines(
+                x,
+                y,
+                main.width,
+                main.paddingWest,
+                main.paddingEast,
+                spacing,
+                outlinesThrough,
+                outlinesWest,
+                outlinesEast,
+            )
+        )
         result.extend(
             self.renderStackOfPins(
                 x,
@@ -140,7 +153,6 @@ class SymbolGeneratorForKicad5_Functionnal(SingleSymbolGenerator):
             )
         )
         # epilog
-
 
     @property
     def symbol(self) -> List[str]:
@@ -187,10 +199,18 @@ class SymbolGeneratorForKicad5_Functionnal(SingleSymbolGenerator):
             )
         result.extend(toBeginDraw())
 
-        self.render(main, outlinesThrough, outlinesWest, outlinesEast, xLeft, yTop, spacing, result)
+        self.render(
+            main,
+            outlinesThrough,
+            outlinesWest,
+            outlinesEast,
+            xLeft,
+            yTop,
+            spacing,
+            result,
+        )
 
         # epilog
         result.extend(toEndDraw())
         result.extend(toEndSymbol())
         return result
-
