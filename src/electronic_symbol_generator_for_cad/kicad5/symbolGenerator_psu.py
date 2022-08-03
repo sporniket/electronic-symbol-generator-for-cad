@@ -111,14 +111,6 @@ class SymbolGeneratorForKicad5_Physical(SingleSymbolGenerator):
         # epilog
 
     @property
-    def suffix(self) -> str:
-        return ""
-
-    @property
-    def title(self) -> str:
-        return f"{self.p.name} -- To specify"
-
-    @property
     def symbol(self) -> List[str]:
         result = []
         # --- prepare ---

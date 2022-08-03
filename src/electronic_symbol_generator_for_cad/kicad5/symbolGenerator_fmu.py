@@ -52,6 +52,14 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         self.p = p
         self.metrics = m
 
+    @property
+    def suffix(self) -> str:
+        return "_mu"
+
+    @property
+    def title(self) -> str:
+        return f"{self.p.name} -- Multiple units symbol"
+
     def renderGroup(
         self, g: GroupOfPins, spacing: int, currentUnit: int, result: List[str]
     ):
@@ -126,11 +134,11 @@ class SymbolGeneratorForKicad5_Functionnal_MultiUnit(SingleSymbolGenerator):
         # --- generate statements ---
         spacing = metrics["spacing"]
         # prolog
-        result.extend(toTitle(f"{self.p.name} -- Multiple units symbol"))
+        result.extend(toTitle(self.title))
         # main text
-        result.extend(toBeginSymbol((self.p.name + "_mu").upper(), numberOfUnits))
+        result.extend(toBeginSymbol((self.p.name + self.suffix).upper(), numberOfUnits))
         if len(self.p.aliases) > 0:
-            result.extend(toAliases([a + "_mu" for a in self.p.aliases]))
+            result.extend(toAliases([a + self.suffix for a in self.p.aliases]))
         result += toFieldVisible(0, self.p.prefix, 0, 300, StyleOfField.NORMAL)
         result += toFieldVisible(1, self.p.name, 0, 200, StyleOfField.BOLD)
         if self.p.footprintDesignator != None:

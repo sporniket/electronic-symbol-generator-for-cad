@@ -75,3 +75,12 @@ class SingleSymbolGenerator:
         A single symbol is a set of lines of text describing the symbol using the syntax of the supported CAD software.
         """
         return []
+
+    @property
+    def suffix(self) -> str:
+        return ""
+
+    @property
+    def title(self) -> str:
+        return f"{self.p.name}"
+
