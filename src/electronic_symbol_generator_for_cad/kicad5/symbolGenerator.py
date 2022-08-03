@@ -28,6 +28,7 @@ from ..symbolGenerator import (
 )
 
 from .symbols import *
+from .symbolGenerator_fsu import SymbolGeneratorForKicad5_Functionnal
 from .symbolGenerator_fmu import SymbolGeneratorForKicad5_Functionnal_MultiUnit
 from .symbolGenerator_psu import (
     SymbolGeneratorForKicad5_Physical_SingleUnit,
@@ -39,6 +40,7 @@ class SymbolGeneratorForKicad5(SymbolGenerator):
     def __init__(self, p: PackageDescription):
         self.p = p
         self.generators = {
+            "functionnal_single_unit": SymbolGeneratorForKicad5_Functionnal(p),
             "functionnal_multi_unit": SymbolGeneratorForKicad5_Functionnal_MultiUnit(p),
             "physical_single_unit": SymbolGeneratorForKicad5_Physical_SingleUnit(p),
             "physical_single_unit_socket": SymbolGeneratorForKicad5_Physical_SingleUnit_Socket(
