@@ -215,15 +215,18 @@ class LayoutManagerForSingleUnit(LayoutManager):
                 # spacing before
                 result.west.pushSinglePin(None)
                 slots = g.slots
-                hasTwoGroupAtWest = (
-                    0 if "in" not in slots or "others" not in slots else 1
-                )
-                if "in" in slots:
-                    result.west.push(slots["in"])
-                if hasTwoGroupAtWest == 1:
-                    result.west.pushSinglePin(None)
-                if "others" in slots:
-                    result.west.push(slots["others"])
+                if g.pattern == PatternOfGroup.BUS:
+                    result.west.push(slots["bus"])
+                else:
+                    hasTwoGroupAtWest = (
+                        0 if "in" not in slots or "others" not in slots else 1
+                    )
+                    if "in" in slots:
+                        result.west.push(slots["in"])
+                    if hasTwoGroupAtWest == 1:
+                        result.west.pushSinglePin(None)
+                    if "others" in slots:
+                        result.west.push(slots["others"])
                 separatorAtWest = result.west.length
                 outlineWest.append(separatorAtWest)
         # -- place outputs
@@ -231,18 +234,21 @@ class LayoutManagerForSingleUnit(LayoutManager):
         if len(outputs) > 0:
             for g in outputs:
                 # spacing before
-                result.west.pushSinglePin(None)
+                result.east.pushSinglePin(None)
                 slots = g.slots
-                hasTwoGroupAtEast = (
-                    0 if "in" not in slots or "others" not in slots else 1
-                )
-                if "in" in slots:
-                    result.west.push(slots["in"])
-                if hasTwoGroupAtEast == 1:
-                    result.west.pushSinglePin(None)
-                if "others" in slots:
-                    result.west.push(slots["others"])
-                separatorAtEast = result.west.length
+                if g.pattern == PatternOfGroup.BUS:
+                    result.east.push(slots["bus"])
+                else:
+                    hasTwoGroupAtEast = (
+                        0 if "out" not in slots or "bi" not in slots else 1
+                    )
+                    if "out" in slots:
+                        result.east.push(slots["out"])
+                    if hasTwoGroupAtEast == 1:
+                        result.east.pushSinglePin(None)
+                    if "bi" in slots:
+                        result.east.push(slots["bi"])
+                separatorAtEast = result.east.length
                 outlineEast.append(separatorAtEast)
         # -- place bidirectionnal buses, in reversed order by size, to
         if len(bidibuses) > 0:
