@@ -88,7 +88,7 @@ class SymbolGeneratorForKicad5_Functionnal(SingleSymbolGenerator):
             for i in range(len(outlinesEast) - 1):
                 y1 = y - outlinesEast[i] * offset - offset
                 y2 = y - outlinesEast[i + 1] * offset - offset
-                result += toContour(1, y1, x2, y2)
+                result += toContour(x1, y1, x2, y2)
         return result
 
     def render(
