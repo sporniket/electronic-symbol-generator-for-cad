@@ -33,8 +33,20 @@ from .utils import (
 
 from electronic_symbol_generator_for_cad import SymbolGeneratorCli
 
-input_file = "mc_68000_plcc68.md"
-output_file = "mc_68000_plcc68.lib"
+input_files = [
+    "dram-256Kx1.md",
+    "mc_68000_plcc68.md",
+    "lf347.json",
+    "pal20r6.md",
+    "simm-30.md",
+]
+output_files = [
+    "dram-256Kx1.lib",
+    "mc_68000_plcc68.lib",
+    "lf347.lib",
+    "pal20r6.lib",
+    "simm-30.lib",
+]
 
 
 def test_that_format_kicad5_works_as_expected():
@@ -42,5 +54,8 @@ def test_that_format_kicad5_works_as_expected():
     source_dir = os.path.join(".", "tests", "data")
     expected_dir = os.path.join(".", "tests", "data.expected")
     baseArgs = ["prog", "--format", "kicad5", "--into", tmp_dir]
-    perform_test(tmp_dir, source_dir, expected_dir, baseArgs, input_file, output_file)
+    for input_file, output_file in zip(input_files, output_files):
+        perform_test(
+            tmp_dir, source_dir, expected_dir, baseArgs, input_file, output_file
+        )
     shutil.rmtree(tmp_dir)
