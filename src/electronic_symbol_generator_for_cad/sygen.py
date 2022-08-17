@@ -154,6 +154,7 @@ If not, see <https://www.gnu.org/licenses/>. 
                     SymbolGeneratorForKicad5(work["package"]).emitSymbolSet(outfile)
             else:  # args.format == OutputFormat.KICAD6:
                 print(f"load datasheet or deserialize json, generate '*.kycad_sym'...")
+                raise RuntimeError("Not implemented yet !")
                 targetName = relocateFileIfNeeded(
                     f"{s.name[:-5] if isJsonSource else s.name[:-3]}.kycad_sym", into
                 )

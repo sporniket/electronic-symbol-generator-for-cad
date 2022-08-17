@@ -20,6 +20,11 @@ If not, see <https://www.gnu.org/licenses/>. 
 """
 
 import os
+import sys
+import filecmp
+from typing import List
+from unittest.mock import patch
+from electronic_symbol_generator_for_cad import SymbolGeneratorCli
 
 
 def makeTmpDirOrDie(suffix: str = None) -> str:
@@ -30,3 +35,28 @@ def makeTmpDirOrDie(suffix: str = None) -> str:
         raise (ResourceWarning(f"{newdir} is not a directory"))
     os.mkdir(newdir)
     return newdir
+
+
+def assert_that_source_is_converted_as_expected(pathActual: str, pathExpected: str):
+    assert filecmp.cmp(pathActual, pathExpected, shallow=False)
+
+
+def perform_test(
+    tmp_dir: str,
+    source_dir: str,
+    expected_dir: str,
+    baseArgs: List[str],
+    inputFileName: str,
+    outputFileName: str,
+):
+    with patch.object(
+        sys, "argv", baseArgs + [os.path.join(source_dir, inputFileName)]
+    ):
+        SymbolGeneratorCli().run()
+        # Checks that json source files are skipped
+        actualResultPath = os.path.join(tmp_dir, outputFileName)
+        expectedResultPath = os.path.join(expected_dir, outputFileName)
+        assert os.path.exists(actualResultPath)
+        assert_that_source_is_converted_as_expected(
+            actualResultPath, expectedResultPath
+        )

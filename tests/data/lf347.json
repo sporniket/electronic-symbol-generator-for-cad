@@ -1,0 +1,168 @@
+{
+  "meta": {
+    "name": "LF147_LF347×1_WIDE_BANDWIDTH_QUAD_JFET_INPUT_OPERATIONAL_AMPLIFIERS",
+    "aliases": [
+      "LF147",
+      "LF147J",
+      "LF347",
+      "LF347M",
+      "LF347BN",
+      "LF347N"
+    ],
+    "reference": "U",
+    "datasheet": "https://pdf1.alldatasheet.fr/datasheet-pdf/view/8576/NSC/LF347N.html",
+    "footprint": "Package_DIP:DIP-14_W7.62mm_LongPads",
+    "physical": "DIP"
+  },
+  "pins": [
+    {
+      "designator": "1",
+      "name": "OUT1",
+      "type": "O",
+      "description": "",
+      "group": "OPAMP1"
+    },
+    {
+      "designator": "2",
+      "name": "IN1-",
+      "type": "I",
+      "description": "",
+      "group": "OPAMP1"
+    },
+    {
+      "designator": "3",
+      "name": "IN1+",
+      "type": "I",
+      "description": "",
+      "group": "OPAMP1"
+    },
+    {
+      "designator": "4",
+      "name": "V+",
+      "type": "I",
+      "description": "",
+      "group": "VREF"
+    },
+    {
+      "designator": "5",
+      "name": "IN2+",
+      "type": "I",
+      "description": "",
+      "group": "OPAMP2"
+    },
+    {
+      "designator": "6",
+      "name": "IN2-",
+      "type": "I",
+      "description": "",
+      "group": "OPAMP2"
+    },
+    {
+      "designator": "7",
+      "name": "OUT2",
+      "type": "O",
+      "description": "",
+      "group": "OPAMP2"
+    },
+    {
+      "designator": "8",
+      "name": "OUT3",
+      "type": "O",
+      "description": "",
+      "group": "OPAMP3"
+    },
+    {
+      "designator": "9",
+      "name": "IN3-",
+      "type": "I",
+      "description": "",
+      "group": "OPAMP3"
+    },
+    {
+      "designator": "10",
+      "name": "IN3+",
+      "type": "I",
+      "description": "",
+      "group": "OPAMP3"
+    },
+    {
+      "designator": "11",
+      "name": "V-",
+      "type": "I",
+      "description": "",
+      "group": "VREF"
+    },
+    {
+      "designator": "12",
+      "name": "IN4+",
+      "type": "I",
+      "description": "",
+      "group": "OPAMP4"
+    },
+    {
+      "designator": "13",
+      "name": "IN4-",
+      "type": "I",
+      "description": "",
+      "group": "OPAMP4"
+    },
+    {
+      "designator": "14",
+      "name": "OUT4",
+      "type": "O",
+      "description": "",
+      "group": "OPAMP4"
+    }
+  ],
+  "groups": [
+    {
+      "designator": "OPAMP1",
+      "rank": 10,
+      "comment": "Operational Amplifier 1",
+      "pins": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "designator": "OPAMP2",
+      "rank": 20,
+      "comment": "Operational Amplifier 2",
+      "pins": [
+        "5",
+        "6",
+        "7"
+      ]
+    },
+    {
+      "designator": "OPAMP3",
+      "rank": 30,
+      "comment": "Operational Amplifier 3",
+      "pins": [
+        "8",
+        "9",
+        "10"
+      ]
+    },
+    {
+      "designator": "OPAMP4",
+      "rank": 40,
+      "comment": "Operational Amplifier 4",
+      "pins": [
+        "12",
+        "13",
+        "14"
+      ]
+    },
+    {
+      "designator": "VREF",
+      "rank": 50,
+      "comment": "Voltage reference",
+      "pins": [
+        "4",
+        "11"
+      ]
+    }
+  ]
+}
