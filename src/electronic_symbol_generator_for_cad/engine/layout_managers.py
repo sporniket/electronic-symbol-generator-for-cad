@@ -383,7 +383,7 @@ class LayoutManagerForPhysicalSingleUnit(LayoutManager):
         allThePins += self.p.ungroupedPins
         for g in self.p.groupedPins:
             allThePins += g.pins
-        return sorted(allThePins, key=lambda p: p.designator.fullname)
+        return sorted(allThePins, key=lambda p: p.designator.rank)
 
     def apply(self) -> RectangularHolderOfRailsOfPins:
         layout = self.p.layoutOfPins.value
