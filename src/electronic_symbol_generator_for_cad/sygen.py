@@ -149,7 +149,7 @@ If not, see <https://www.gnu.org/licenses/>. 
                     outfile.write(serialized)
             elif args.format == OutputFormat.KICAD5:
                 print(f"load datasheet or deserialize json, generate '*.lib'...")
-                work = prepareWork(s, isJsonSource, "lib")
+                work = prepareWork(s, isJsonSource, "lib", into)
                 with (open(work["targetName"], "w")) as outfile:
                     SymbolGeneratorForKicad5(work["package"]).emitSymbolSet(outfile)
             else:  # args.format == OutputFormat.KICAD6:
