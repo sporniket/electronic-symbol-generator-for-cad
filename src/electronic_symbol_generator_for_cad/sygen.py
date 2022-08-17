@@ -41,9 +41,15 @@ class OutputFormat(Enum):
     KICAD6 = "kicad6"
 
 
-def prepareWork(s, isJsonSource: bool, extension: str) -> dict:
+def relocateFileIfNeeded(path: str, into: str) -> str:
+    return os.path.join(into, os.path.basename(path)) if into != None else path
+
+
+def prepareWork(s, isJsonSource: bool, extension: str, into: str) -> dict:
     return {
-        "targetName": f"{s.name[:-5] if isJsonSource else s.name[:-3]}.{extension}",
+        "targetName": relocateFileIfNeeded(
+            f"{s.name[:-5] if isJsonSource else s.name[:-3]}.{extension}", into
+        ),
         "package": DeserializerOfPackage().packageFromJsonString("".join(s.readlines()))
         if isJsonSource
         else ParserOfMarkdownDatasheet().parseLines(s.readlines()),
@@ -129,11 +135,12 @@ If not, see <https://www.gnu.org/licenses/>. 
                 continue
 
             # do the processing
+            into = None if args.into == None or len(args.into) == 0 else args.into
             if args.format == OutputFormat.JSON:
                 if isJsonSource:
                     print(f"skip already serialized file '{s.name}'")
                     continue
-                targetName = s.name[:-3] + ".json"
+                targetName = relocateFileIfNeeded(s.name[:-3] + ".json", into)
                 print(f"load datasheet and serialize into {targetName}...")
                 serialized = SerializerOfPackage().jsonFrom(
                     ParserOfMarkdownDatasheet().parseLines(s.readlines())
@@ -147,7 +154,9 @@ If not, see <https://www.gnu.org/licenses/>. 
                     SymbolGeneratorForKicad5(work["package"]).emitSymbolSet(outfile)
             else:  # args.format == OutputFormat.KICAD6:
                 print(f"load datasheet or deserialize json, generate '*.kycad_sym'...")
-                targetName = f"{s.name[:-5] if isJsonSource else s.name[:-3]}.kycad_sym"
+                targetName = relocateFileIfNeeded(
+                    f"{s.name[:-5] if isJsonSource else s.name[:-3]}.kycad_sym", into
+                )
                 p = (
                     DeserializerOfPackage.packageFromJsonString("".join(s.readlines()))
                     if isJsonSource
