@@ -1,5 +1,6 @@
 # START OF Special for this project
 tmp.*
+tests/data/mc_68000_plcc68.json
 # END OF Special for this project
 
 # VSCode stuff
