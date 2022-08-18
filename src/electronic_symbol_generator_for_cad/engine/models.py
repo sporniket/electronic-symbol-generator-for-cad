@@ -39,14 +39,21 @@ class RailOfPins:
     def length(self) -> int:
         return len(self.items)
 
+    def updateWidth(self, pins: List[PinDescription]):
+        self.width = max(
+            [self.width]
+            + [
+                0 if p is None else len("".join(c for c in p.name if c not in "~")) + 1
+                for p in pins
+            ]
+        )
+
     def push(self, pins: List[PinDescription], *, withSeparator=False):
         if len(pins) > 0:
             if withSeparator and self.length > 0:
                 self.items.append(None)
             self.items.extend(pins)
-            self.width = max(
-                [self.width] + [0 if p is None else len(p.name) for p in pins]
-            )
+            self.updateWidth(pins)
 
     def pushSinglePin(self, pin: PinDescription):
         self.push([pin])
