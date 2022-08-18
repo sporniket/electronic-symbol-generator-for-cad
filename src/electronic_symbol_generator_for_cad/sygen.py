@@ -99,7 +99,7 @@ If not, see <https://www.gnu.org/licenses/>. 
             "--format",
             action="store",
             type=OutputFormat,
-            required=False,
+            required=True,
             help=f"format of the output file : {[f.value for f in OutputFormat]}",
         )
         parser.add_argument(
