@@ -29,16 +29,17 @@ Content
 
 #### v0.0.1
 
-* TBD
+* First packaged version, supports 'json' and 'kicad5' format only
 
 ## 2. What should you know before using **Sporniket's electronic symbol generator for CAD** ?
 
-**Sporniket's electronic symbol generator for CAD** is written using python version 3.6, and should work with python version 3.7 up to 3.10.
+**Sporniket's electronic symbol generator for CAD** is written using python version 3.8, and should work with python version to 3.10.
 
 It relies on the following packages to build and test :
 
 * build
 * pytest
+* coverage
 
 It also relies on the following package to enforce source formatting :
 
@@ -58,7 +59,7 @@ To get the latest available models, one must clone the git repository, build and
 
 	git clone https://github.com/sporniket/electronic-symbol-generator-for-cad.git
 	cd electronic-symbol-generator-for-cad
-	python3 -m build && python3 -m pip install --force-reinstall dist/*.whl
+	./retest
 
 Then, invoke the command line interface :
 
@@ -72,7 +73,7 @@ python3 -m electronic_symbol_generator_for_cad [option] input_file
 pip install electronic-symbol-generator-for-cad-by-sporniket
 ```
 
-Then, import the library in your code :
+Then, invoke the command line interface :
 
 ```
 python3 -m electronic_symbol_generator_for_cad [option] input_file
@@ -86,7 +87,9 @@ See the [project issues](https://github.com/sporniket/electronic-symbol-generato
 Supplemental documentation :
 
 * [README packaging](https://github.com/sporniket/electronic-symbol-generator-for-cad/blob/main/README-packaging.md) : some technical details about packaging this project.
-* TBD...
+* [README cli](https://github.com/sporniket/electronic-symbol-generator-for-cad/blob/main/README-cli.md) : the manual of the command line interface.
+* [README json](https://github.com/sporniket/electronic-package-descriptor/blob/main/README-json.md) : the specification of the JSON-based format.
+* [README datasheet](https://github.com/sporniket/electronic-package-descriptor/blob/main/README-datasheet.md) : the specification of the Markdown-based datasheet structure.
 
 ### Report issues
 Use the [project issues](https://github.com/sporniket/electronic-symbol-generator-for-cad/issues) page.
