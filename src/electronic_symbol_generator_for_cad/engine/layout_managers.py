@@ -298,7 +298,7 @@ class LayoutManagerForSingleGroup(LayoutManager):
             main.east.push([None] + slots["out"] + [None])
         elif self.g.pattern == PatternOfGroup.AMPOP_VREF:
             ins = slots["in"]
-            main.north.pushSinglePin(ins[0])
+            main.west.pushSinglePin(ins[0])
             main.south.pushSinglePin(ins[1])
         elif self.g.pattern == PatternOfGroup.POWER:
             main.west.push(slots["in"])

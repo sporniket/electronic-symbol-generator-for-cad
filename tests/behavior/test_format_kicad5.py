@@ -34,6 +34,7 @@ from .utils import (
 from electronic_symbol_generator_for_cad import SymbolGeneratorCli
 
 input_files = [
+    "dac0802.md",
     "dram-256Kx1.md",
     "mc_68000_plcc68.md",
     "lf347.json",
@@ -41,6 +42,7 @@ input_files = [
     "simm-30.md",
 ]
 output_files = [
+    "dac0802.lib",
     "dram-256Kx1.lib",
     "mc_68000_plcc68.lib",
     "lf347.lib",
