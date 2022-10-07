@@ -27,6 +27,10 @@ Content
 
 ### Release notes
 
+#### v0.0.2
+
+* Resolves #3 : [bug]Functionnal, multi-unit : AMPOP_VREF groups should not place V+ on the north side
+
 #### v0.0.1
 
 * First packaged version, supports 'json' and 'kicad5' format only
