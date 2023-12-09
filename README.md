@@ -59,6 +59,13 @@ see [README packaging](https://github.com/sporniket/electronic-symbol-generator-
 
 ### From sources
 
+> Some python modules are required
+>
+> ```
+> python3 -m pip install --upgrade build pytest black coverage
+> ```
+>
+
 To get the latest available models, one must clone the git repository, build and install the package.
 
 	git clone https://github.com/sporniket/electronic-symbol-generator-for-cad.git
