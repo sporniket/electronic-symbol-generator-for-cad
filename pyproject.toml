@@ -1,6 +1,6 @@
 [project]
 name = "electronic-symbol-generator-for-cad-by-sporniket"
-version = "0.0.2"
+version = "0.0.3"
 description = "Electronic symbol generator for CAD, a library with a command line interface to generate symbols of electronic packages for electronic CAD suites like Kicad."
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}

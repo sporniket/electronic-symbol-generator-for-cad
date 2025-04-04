@@ -2,6 +2,12 @@
 
 ## Synopsis
 
+**Entry point**
+```
+elsygen --format [format] --into [path] [source files]
+```
+
+**Python module**
 ```
 python3 -m electronic_symbol_generator_for_cad --format [format] --into [path] [source files]
 ```

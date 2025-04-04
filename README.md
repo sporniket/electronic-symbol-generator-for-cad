@@ -27,6 +27,10 @@ Content
 
 ### Release notes
 
+#### v0.0.3
+
+Provides an entry point : `elsygen`.
+
 #### v0.0.2
 
 * Resolves #3 : [bug]Functionnal, multi-unit : AMPOP_VREF groups should not place V+ on the north side
@@ -62,15 +66,15 @@ see [README packaging](https://github.com/sporniket/electronic-symbol-generator-
 > Some python modules are required
 >
 > ```
-> python3 -m pip install --upgrade build pytest black coverage
+> pipx install --upgrade pdm
 > ```
 >
 
-To get the latest available models, one must clone the git repository, build and install the package.
+Clone the git repository, get all the dependencies :
 
 	git clone https://github.com/sporniket/electronic-symbol-generator-for-cad.git
 	cd electronic-symbol-generator-for-cad
-	./retest
+	pdm sync
 
 Then, invoke the command line interface :
 
@@ -78,16 +82,16 @@ Then, invoke the command line interface :
 python3 -m electronic_symbol_generator_for_cad [option] input_file
 ```
 
-### Using pip
+### Using pipx
 
 ```
-pip install electronic-symbol-generator-for-cad-by-sporniket
+pipx install electronic-symbol-generator-for-cad-by-sporniket
 ```
 
 Then, invoke the command line interface :
 
 ```
-python3 -m electronic_symbol_generator_for_cad [option] input_file
+elsygen [option] input_file
 ```
 
 ## 4. Known issues
