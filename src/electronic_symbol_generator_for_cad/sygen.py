@@ -15,13 +15,18 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Electronic Symbol Generator for CAD.
-If not, see <https://www.gnu.org/licenses/>. 
+If not, see <https://www.gnu.org/licenses/>.
 ---
 """
+
 import os
 import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, FileType
-from electronic_package_descriptor import *
+from electronic_package_descriptor import (
+    DeserializerOfPackage,
+    ParserOfMarkdownDatasheet,
+    SerializerOfPackage,
+)
 
 from typing import List, Union, Optional
 from enum import Enum
@@ -50,9 +55,11 @@ def prepareWork(s, isJsonSource: bool, extension: str, into: str) -> dict:
         "targetName": relocateFileIfNeeded(
             f"{s.name[:-5] if isJsonSource else s.name[:-3]}.{extension}", into
         ),
-        "package": DeserializerOfPackage().packageFromJsonString("".join(s.readlines()))
-        if isJsonSource
-        else ParserOfMarkdownDatasheet().parseLines(s.readlines()),
+        "package": (
+            DeserializerOfPackage().packageFromJsonString("".join(s.readlines()))
+            if isJsonSource
+            else ParserOfMarkdownDatasheet().parseLines(s.readlines())
+        ),
     }
 
 
@@ -150,7 +157,7 @@ If not, see <https://www.gnu.org/licenses/>. 
             elif args.format == OutputFormat.KICAD5:
                 print(f"load datasheet or deserialize json, generate '*.lib'...")
                 work = prepareWork(s, isJsonSource, "lib", into)
-                with (open(work["targetName"], "w")) as outfile:
+                with open(work["targetName"], "w") as outfile:
                     SymbolGeneratorForKicad5(work["package"]).emitSymbolSet(outfile)
             else:  # args.format == OutputFormat.KICAD6:
                 print(f"load datasheet or deserialize json, generate '*.kycad_sym'...")

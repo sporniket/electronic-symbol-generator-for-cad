@@ -15,12 +15,13 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Electronic Symbol Generator for CAD.
-If not, see <https://www.gnu.org/licenses/>. 
+If not, see <https://www.gnu.org/licenses/>.
 ---
 """
+
 from typing import List, Dict
 
-from electronic_package_descriptor import *
+from electronic_package_descriptor import GroupOfPins, PackageDescription
 from ..symbolGenerator import (
     SymbolGenerator,
     SingleSymbolGenerator,
@@ -32,9 +33,20 @@ from ..engine import (
     typesOfPowerDistributionPins,
 )
 
-from .comments import *
-from .pins import *
-from .symbols import *
+from .comments import toSubtitle, toTitle
+from .pins import SideOfComponent, toStackOfPins
+from .symbols import (
+    StyleOfField,
+    toAliases,
+    toBeginDraw,
+    toBeginSymbol,
+    toEndDraw,
+    toEndSymbol,
+    toFieldInvisible,
+    toFieldVisible,
+    toSurface,
+    toText,
+)
 from .metrics import metrics
 
 

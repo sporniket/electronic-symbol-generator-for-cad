@@ -15,11 +15,19 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Electronic Symbol Generator for CAD.
-If not, see <https://www.gnu.org/licenses/>. 
+If not, see <https://www.gnu.org/licenses/>.
 ---
 """
+
 from typing import List, Dict, Union
-from electronic_package_descriptor import *
+from electronic_package_descriptor import (
+    Directionnality,
+    GroupOfPins,
+    PackageDescription,
+    PatternOfGroup,
+    PinDescription,
+    TypeOfPin,
+)
 
 from .models import RectangularHolderOfRailsOfPins
 
