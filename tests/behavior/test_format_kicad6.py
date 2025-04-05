@@ -26,23 +26,35 @@ import sys
 import pytest
 from unittest.mock import patch
 
-from .utils import makeTmpDirOrDie
+from .utils import makeTmpDirOrDie, perform_test
 
 from electronic_symbol_generator_for_cad import SymbolGeneratorCli
 
 input_file = "mc_68000_plcc68.md"
+input_files = [
+    # "dac0802.md",
+    # "dram-256Kx1.md",
+    "mc_68000_plcc68.md",
+    # "lf347.json",
+    # "pal20r6.md",
+    # "simm-30.md",
+]
+output_files = [
+    # "dac0802.kicad_sym",
+    # "dram-256Kx1.kicad_sym",
+    "mc_68000_plcc68.kicad_sym",
+    # "lf347.kicad_sym",
+    # "pal20r6.kicad_sym",
+    # "simm-30.kicad_sym",
+]
 
 
 def test_that_format_kicad6_works_as_expected():
     tmp_dir = makeTmpDirOrDie(time.time())
-    testargs = [
-        "prog",
-        "--format",
-        "kicad-s-expr",
-        "--into",
-        tmp_dir,
-        os.path.join(".", "tests", "data", input_file),
-    ]
-    with patch.object(sys, "argv", testargs):
-        with pytest.raises(RuntimeError):
-            SymbolGeneratorCli().run()
+    source_dir = os.path.join(".", "tests", "data")
+    expected_dir = os.path.join(".", "tests", "data.expected")
+    baseArgs = ["prog", "--format", "kicad-s-expr", "--into", tmp_dir]
+    for input_file, output_file in zip(input_files, output_files):
+        perform_test(
+            tmp_dir, source_dir, expected_dir, baseArgs, input_file, output_file
+        )

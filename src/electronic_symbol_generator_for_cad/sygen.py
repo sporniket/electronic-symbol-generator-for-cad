@@ -122,9 +122,9 @@ If not, see <https://www.gnu.org/licenses/>. 
         self._workers = {
             OutputFormat.JSON: SygenWorkerJson(),
             OutputFormat.KICAD5: SygenWorkerKicad(SymbolGeneratorForKicad5, "lib"),
-            # OutputFormat.KICAD_S_EXPR: SygenWorkerKicad(
-            #    SymbolGeneratorForKicad5, "kicad_sym"
-            # ),
+            OutputFormat.KICAD_S_EXPR: SygenWorkerKicad(
+                SymbolGeneratorForKicad5, "kicad_sym"
+            ),
         }
         pass
 
@@ -151,7 +151,9 @@ If not, see <https://www.gnu.org/licenses/>. 
             # do the processing
             into = None if args.into == None or len(args.into) == 0 else args.into
             if args.format not in self._workers:
-                raise RuntimeError(f"Format '{args.format}' not implemented yet !")
+                raise RuntimeError(
+                    f"Format '{args.format.value}' not implemented yet !"
+                )
             self._workers[args.format].perform(s, isJsonSource, into)
 
         print("Done")
