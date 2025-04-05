@@ -61,4 +61,3 @@ def test_that_format_json_works_as_expected():
             )
             == 1
         )
-    shutil.rmtree(tmp_dir)

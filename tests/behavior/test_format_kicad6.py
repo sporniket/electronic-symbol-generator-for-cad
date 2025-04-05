@@ -46,4 +46,3 @@ def test_that_format_kicad6_works_as_expected():
     with patch.object(sys, "argv", testargs):
         with pytest.raises(RuntimeError):
             SymbolGeneratorCli().run()
-    shutil.rmtree(tmp_dir)

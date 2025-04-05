@@ -57,4 +57,3 @@ def test_that_output_is_beside_source_when_into_is_not_specified():
     with patch.object(sys, "argv", testargs):
         SymbolGeneratorCli().run()
         assert os.path.exists(os.path.join(tmp_dir, output_file))
-    shutil.rmtree(tmp_dir)

@@ -61,4 +61,3 @@ def test_that_format_kicad5_works_as_expected():
         perform_test(
             tmp_dir, source_dir, expected_dir, baseArgs, input_file, output_file
         )
-    shutil.rmtree(tmp_dir)

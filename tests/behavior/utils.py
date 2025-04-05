@@ -28,7 +28,7 @@ from electronic_symbol_generator_for_cad import SymbolGeneratorCli
 
 
 def makeTmpDirOrDie(suffix: str = None) -> str:
-    newdir = os.path.join(".", f"tmp.{suffix}" if suffix != None else "tmp")
+    newdir = os.path.join(".", f"tmp.test_{suffix}" if suffix != None else "tmp")
     if os.path.exists(newdir):
         if os.path.isdir(newdir):
             return newdir
