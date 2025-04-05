@@ -119,6 +119,13 @@ If not, see <https://www.gnu.org/licenses/>. 
         return parser
 
     def __init__(self):
+        self._workers = {
+            OutputFormat.JSON: SygenWorkerJson(),
+            OutputFormat.KICAD5: SygenWorkerKicad(SymbolGeneratorForKicad5, "lib"),
+            # OutputFormat.KICAD_S_EXPR: SygenWorkerKicad(
+            #    SymbolGeneratorForKicad5, "kicad_sym"
+            # ),
+        }
         pass
 
     def run(self) -> Optional[int]:
@@ -143,32 +150,58 @@ If not, see <https://www.gnu.org/licenses/>. 
 
             # do the processing
             into = None if args.into == None or len(args.into) == 0 else args.into
-            if args.format == OutputFormat.JSON:
-                if isJsonSource:
-                    print(f"skip already serialized file '{s.name}'")
-                    continue
-                targetName = relocateFileIfNeeded(s.name[:-3] + ".json", into)
-                print(f"load datasheet and serialize into {targetName}...")
-                serialized = SerializerOfPackage().jsonFrom(
-                    ParserOfMarkdownDatasheet().parseLines(s.readlines())
-                )
-                with open(targetName, "w") as outfile:
-                    outfile.write(serialized)
-            elif args.format == OutputFormat.KICAD5:
-                print(f"load datasheet or deserialize json, generate '*.lib'...")
-                work = prepareWork(s, isJsonSource, "lib", into)
-                with open(work["targetName"], "w") as outfile:
-                    SymbolGeneratorForKicad5(work["package"]).emitSymbolSet(outfile)
-            else:  # args.format == OutputFormat.KICAD6:
-                print(f"load datasheet or deserialize json, generate '*.kycad_sym'...")
-                raise RuntimeError("Not implemented yet !")
-                targetName = relocateFileIfNeeded(
-                    f"{s.name[:-5] if isJsonSource else s.name[:-3]}.kycad_sym", into
-                )
-                p = (
-                    DeserializerOfPackage.packageFromJsonString("".join(s.readlines()))
-                    if isJsonSource
-                    else ParserOfMarkdownDatasheet().parseLines(s.readlines())
-                )
+            if args.format not in self._workers:
+                raise RuntimeError(f"Format '{args.format}' not implemented yet !")
+            self._workers[args.format].perform(s, isJsonSource, into)
 
         print("Done")
+
+
+class SygenWorker:
+    def relocateFileIfNeeded(self, path: str, into: str) -> str:
+        return os.path.join(into, os.path.basename(path)) if into != None else path
+
+
+class SygenWorkerJson(SygenWorker):
+    def perform(self, source: str, isJsonSource: bool, intoFolder: str):
+        if isJsonSource:
+            print(f"skip already serialized file '{source.name}'")
+            return
+        targetName = self.relocateFileIfNeeded(source.name[:-3] + ".json", intoFolder)
+        print(f"load datasheet and serialize into {targetName}...")
+        serialized = SerializerOfPackage().jsonFrom(
+            ParserOfMarkdownDatasheet().parseLines(source.readlines())
+        )
+        with open(targetName, "w") as outfile:
+            outfile.write(serialized)
+
+
+class SygenWorkerCad(SygenWorker):
+    def prepareWork(
+        self, source: str, isJsonSource: bool, extension: str, into: str
+    ) -> dict:
+        return {
+            "targetName": relocateFileIfNeeded(
+                f"{source.name[:-5] if isJsonSource else source.name[:-3]}.{extension}",
+                into,
+            ),
+            "package": (
+                DeserializerOfPackage().packageFromJsonString(
+                    "".join(source.readlines())
+                )
+                if isJsonSource
+                else ParserOfMarkdownDatasheet().parseLines(source.readlines())
+            ),
+        }
+
+
+class SygenWorkerKicad(SygenWorkerCad):
+    def __init__(self, symbolGeneratorClass, extension: str):
+        self._symbolGeneratorClass = symbolGeneratorClass
+        self._extension = extension
+
+    def perform(self, source: str, isJsonSource: bool, intoFolder: str):
+        print(f"load datasheet or deserialize json, generate '*.{self._extension}'...")
+        work = prepareWork(source, isJsonSource, self._extension, intoFolder)
+        with open(work["targetName"], "w") as outfile:
+            self._symbolGeneratorClass(work["package"]).emitSymbolSet(outfile)
