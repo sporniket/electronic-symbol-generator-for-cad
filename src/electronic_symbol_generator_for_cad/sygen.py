@@ -43,7 +43,7 @@ class OutputFormat(Enum):
 
     JSON = "json"
     KICAD5 = "kicad5"
-    KICAD6 = "kicad6"
+    KICAD_S_EXPR = "kicad-s-expr"
 
 
 def relocateFileIfNeeded(path: str, into: str) -> str:

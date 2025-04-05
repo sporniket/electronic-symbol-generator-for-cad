@@ -38,7 +38,7 @@ def test_that_format_kicad6_works_as_expected():
     testargs = [
         "prog",
         "--format",
-        "kicad6",
+        "kicad-s-expr",
         "--into",
         tmp_dir,
         os.path.join(".", "tests", "data", input_file),
