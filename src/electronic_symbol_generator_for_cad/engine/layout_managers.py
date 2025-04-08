@@ -29,7 +29,7 @@ from electronic_package_descriptor import (
     TypeOfPin,
 )
 
-from .models import RectangularHolderOfRailsOfPins
+from .models import RailOfPins, RectangularHolderOfRailsOfPins
 
 typesOfPowerDistributionPins = (
     TypeOfPin.POWER,
