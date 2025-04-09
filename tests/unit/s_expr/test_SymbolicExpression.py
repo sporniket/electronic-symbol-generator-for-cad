@@ -19,7 +19,10 @@ If not, see <https://www.gnu.org/licenses/>.
 ---
 """
 
-from electronic_symbol_generator_for_cad.kicad_s_expr.s_expr import SymbolicExpression
+from electronic_symbol_generator_for_cad.kicad_s_expr.s_expr import (
+    SymbolicAttribute,
+    SymbolicExpression,
+)
 
 
 def test_symbolCount_should_count_symbols_recursively():
@@ -74,3 +77,27 @@ def test_hasSymbolCountUnder_should_verify_the_number_of_symbols_against_provide
         == True
     )
     assert SymbolicExpression("a", ["b", "c"]).hasSymbolCountUnder(4) == True
+
+
+def test_attributes_should_return_the_list_of_attributes():
+    attributes = SymbolicExpression(
+        "a", ["b", "c", 0xD, SymbolicExpression("e", ["f", 3.14, True]), "i"]
+    ).attributes
+
+    for i, a in enumerate(attributes):
+        assert (
+            isinstance(a, SymbolicExpression)
+            if i == 3
+            else isinstance(a, SymbolicAttribute)
+        )
+    assert attributes[0].toString() == '"b"'
+    assert attributes[1].toString() == '"c"'
+    assert attributes[2].toString() == "13"
+    assert attributes[4].toString() == '"i"'
+
+    attributes = attributes[3].attributes
+    for i, a in enumerate(attributes):
+        assert isinstance(a, SymbolicAttribute)
+    assert attributes[0].toString() == '"f"'
+    assert attributes[1].toString() == "3.14"
+    assert attributes[2].toString() == "yes"

@@ -68,6 +68,13 @@ class SymbolicExpression:
             for a in attributes
         ]
 
+    def __getitem__(self, key: int):
+        return self._token if key == 0 else self._attributes[key - 1]
+
+    @property
+    def attributes(self) -> list[Self | SymbolicAttribute]:
+        return [a for a in self._attributes]
+
     @property
     def symbolCount(self) -> int:
         length = 1
@@ -94,3 +101,60 @@ class SymbolicExpression:
             else:
                 available = available - 1
         return True
+
+
+class SymbolicStylesheet:
+    def __init__(self, rules={}):
+        self._lineWidth = 80 if "line-width" not in rules else rules["line-width"]
+        self._leftTrimmedLineMinWidth = (
+            48
+            if "left-trimmed-line-min-width" not in rules
+            else rules["left-trimmed-line-min-width"]
+        )
+        self._secabilityThreshold = (
+            5 if "secability-threshold" not in rules else rules["secability-threshold"]
+        )
+        self._indentWidth = 2 if "indent-width" not in rules else rules["indent-width"]
+
+    def dump(self) -> str:
+        representation = {
+            "line-width": self._lineWidth,
+            "left-trimmed-line-min-width": self._minLineWidth,
+            "secability-threshold": self._secabilityThreshold,
+            "indent-width": self._indentWidth,
+        }
+
+    @property
+    def line_width(self) -> int:
+        return self._lineWidth
+
+    @property
+    def left_trimmed_line_min_width(self) -> int:
+        return self._leftTrimmedLineMinWidth
+
+    @property
+    def secability_threshold(self) -> int:
+        return self._secabilityThreshold
+
+    @property
+    def indent_width(self) -> int:
+        return self._indentWidth
+
+
+class SymbolicSerdes:
+    def __init__(self, stylesheet=SymbolicStylesheet()):
+        self._stylesheet = stylesheet  # or default
+
+    def deserialize(self, source: str) -> SymbolicExpression:
+        return None
+
+    def serialize(self, source: SymbolicExpression, stylesheet) -> str:
+        return None
+
+
+class SymbolicComparator:
+    def __init__(self):
+        pass
+
+    def compare(self, left: SymbolicExpression, right: SymbolicExpression) -> bool:
+        return False
