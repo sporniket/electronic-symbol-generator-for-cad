@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import json
 
-from electronic_symbol_generator_for_cad.kicad_s_expr.s_expr import (
+from electronic_symbol_generator_for_cad.s_expr import (
     SymbolicStylesheet,
 )
 

@@ -19,7 +19,7 @@ If not, see <https://www.gnu.org/licenses/>.
 ---
 """
 
-from electronic_symbol_generator_for_cad.kicad_s_expr.s_expr import SymbolicAttribute
+from electronic_symbol_generator_for_cad.s_expr import SymbolicAttribute
 
 
 def test_that_toString_outputs_numbers_without_quotes():
