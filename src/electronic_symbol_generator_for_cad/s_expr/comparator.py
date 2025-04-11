@@ -19,6 +19,8 @@ If not, see <https://www.gnu.org/licenses/>.
 ---
 """
 
+import io
+
 
 class SymbolicStreamComparator:
     """Try to answer whether two sources of symbolic expression of data are "the same" or not.
@@ -35,7 +37,7 @@ class SymbolicStreamComparator:
 
     """
 
-    def __init__(self, left, right):
+    def __init__(self, left: io.TextIOBase, right: io.TextIOBase):
         self._left = left
         self._right = right
 
@@ -44,3 +46,13 @@ class SymbolicStreamComparator:
 
     def hasNextChunk(self) -> bool:
         return False
+
+    @staticmethod
+    def areEqual(left: io.TextIOBase, right: io.TextIOBase) -> bool:
+        comparator = SymbolicStreamComparator(left, right)
+        while comparator.hasNextChunk():
+            if comparator.compareNextChunk():
+                continue
+            else:
+                return False
+        return True
