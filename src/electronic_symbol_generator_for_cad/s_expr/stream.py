@@ -30,6 +30,7 @@ _MARKER_QUOTES = ['"']
 class SymbolicInputStream:
     def __init__(self, source: io.TextIOBase):
         self._source = source
+        self._backlog = None
 
     def _readFirstNonWhiteChar(self) -> str | None:
         while nextChar := self._source.read(1):
@@ -37,13 +38,22 @@ class SymbolicInputStream:
                 return nextChar
         return None
 
+    def _consumeBackLog(self) -> str:
+        accumulator = self._backlog
+        self._backlog = None
+        return accumulator
+
     def readNext(self) -> str | None:
-        quoteMark = None
+        if self._backlog:
+            return self._consumeBackLog()
+
         accumulator = self._readFirstNonWhiteChar()
         if accumulator is None:
             return None
         if accumulator in _MARKER_PARENTHESIS:
             return accumulator
+
+        quoteMark = None
         if accumulator in _MARKER_QUOTES:
             quoteMark = accumulator
 
@@ -54,6 +64,9 @@ class SymbolicInputStream:
                     return accumulator + nextChar
             else:
                 if nextChar in string.whitespace:
+                    return accumulator
+                if nextChar in _MARKER_PARENTHESIS:
+                    self._backlog = nextChar
                     return accumulator
             accumulator = accumulator + nextChar
             if escape:

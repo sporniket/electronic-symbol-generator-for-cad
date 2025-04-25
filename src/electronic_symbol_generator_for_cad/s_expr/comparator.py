@@ -21,6 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import io
 
+from .stream import SymbolicInputStream
+
 
 class SymbolicStreamComparator:
     """Try to answer whether two sources of symbolic expression of data are "the same" or not.
@@ -38,20 +40,25 @@ class SymbolicStreamComparator:
     """
 
     def __init__(self, left: io.TextIOBase, right: io.TextIOBase):
-        self._left = left
-        self._right = right
+        self._left = SymbolicInputStream(left)
+        self._right = SymbolicInputStream(right)
+        self._latestLeft = None
+        self._latestRight = None
 
-    def compareNextChunk(self) -> bool:
-        return False
+    def _compareNextChunk(self) -> bool:
+        return self._latestLeft == self._latestRight
 
-    def hasNextChunk(self) -> bool:
-        return False
+    def _hasNextChunk(self) -> bool:
+        self._latestLeft = self._left.readNext()
+        self._latestRight = self._right.readNext()
+        print(f"next chunks : {self._latestLeft} <=> {self._latestRight}")
+        return self._latestLeft is not None or self._latestRight is not None
 
     @staticmethod
     def areEqual(left: io.TextIOBase, right: io.TextIOBase) -> bool:
         comparator = SymbolicStreamComparator(left, right)
-        while comparator.hasNextChunk():
-            if comparator.compareNextChunk():
+        while comparator._hasNextChunk():
+            if comparator._compareNextChunk():
                 continue
             else:
                 return False

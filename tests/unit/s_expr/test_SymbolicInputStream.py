@@ -26,8 +26,21 @@ from electronic_symbol_generator_for_cad.s_expr import SymbolicInputStream
 
 def test_read_can_read_symbols_from_streams():
     source = """(a "b c" 3.14 (
-    d "\\"e\\\\\\"f")
+    d "\\"e\\\\\\"f")(g)
 )"""
     stream = SymbolicInputStream(io.StringIO(source))
-    for expected in ["(", "a", '"b c"', "3.14", "(", "d", '"\\"e\\\\\\"f"', ")", ")"]:
+    for expected in [
+        "(",
+        "a",
+        '"b c"',
+        "3.14",
+        "(",
+        "d",
+        '"\\"e\\\\\\"f"',
+        ")",
+        "(",
+        "g",
+        ")",
+        ")",
+    ]:
         assert stream.readNext() == expected
