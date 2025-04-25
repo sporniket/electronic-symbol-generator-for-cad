@@ -19,8 +19,15 @@ If not, see <https://www.gnu.org/licenses/>.
 ---
 """
 
-from .base import SymbolicAttribute, SymbolicExpression
-from .comparator import SymbolicStreamComparator
-from .serializer import SymbolicSerializer, SymbolicSerializerToString
-from .stream import SymbolicInputStream
-from .stylesheet import SymbolicStylesheet
+import io
+
+from electronic_symbol_generator_for_cad.s_expr import SymbolicInputStream
+
+
+def test_read_can_read_symbols_from_streams():
+    source = """(a "b c" 3.14 (
+    d "\\"e\\\\\\"f")
+)"""
+    stream = SymbolicInputStream(io.StringIO(source))
+    for expected in ["(", "a", '"b c"', "3.14", "(", "d", '"\\"e\\\\\\"f"', ")", ")"]:
+        assert stream.readNext() == expected
