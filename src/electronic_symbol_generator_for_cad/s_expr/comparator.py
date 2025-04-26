@@ -23,6 +23,46 @@ import io
 
 from .stream import SymbolicInputStream
 
+_MARKER_BEGIN = "((BEGIN))"
+_MARKER_END = "((END))"
+
+
+class DebugContext:
+    def __init__(self, size: int = 20):
+        if size <= 0:
+            raise ValueError("wrong.context.size:{size}")
+        self._size = size
+        self._context = [("", "") for i in range(size)]
+        self._head = 0
+        self._tail = 0
+        self.append(_MARKER_BEGIN, _MARKER_BEGIN)
+
+    def append(self, left: str, right: str):
+        contextItem = (
+            _MARKER_END if left is None else left,
+            _MARKER_END if right is None else right,
+        )
+        self._context[self._tail] = contextItem
+        self._tail = (self._tail + 1) % self._size
+        if self._tail == self._head:
+            self._head = (self._head + 1) % self._size
+
+    def __getitem__(self, index):
+        if index >= self.__len__():
+            raise IndexError(index)
+        actualItem = (self._head + index) % self._size
+        return self._context[actualItem]
+
+    def __len__(self):
+        result = self._tail - self._head
+        return result + self._size if result < 0 else result
+
+
+class SymbolicStreamComparatorResult:
+    def __init__(self, result: bool, context: list[tuple]):
+        self.result = result
+        self.context = context
+
 
 class SymbolicStreamComparator:
     """Try to answer whether two sources of symbolic expression of data are "the same" or not.
@@ -39,9 +79,12 @@ class SymbolicStreamComparator:
 
     """
 
-    def __init__(self, left: io.TextIOBase, right: io.TextIOBase):
+    def __init__(
+        self, left: io.TextIOBase, right: io.TextIOBase, *, debugContextSize: int = 20
+    ):
         self._left = SymbolicInputStream(left)
         self._right = SymbolicInputStream(right)
+        self._debug = DebugContext(debugContextSize)
         self._latestLeft = None
         self._latestRight = None
 
@@ -51,15 +94,17 @@ class SymbolicStreamComparator:
     def _hasNextChunk(self) -> bool:
         self._latestLeft = self._left.readNext()
         self._latestRight = self._right.readNext()
-        print(f"next chunks : {self._latestLeft} <=> {self._latestRight}")
+        self._debug.append(self._latestLeft, self._latestRight)
         return self._latestLeft is not None or self._latestRight is not None
 
     @staticmethod
-    def areEqual(left: io.TextIOBase, right: io.TextIOBase) -> bool:
+    def areEqual(
+        left: io.TextIOBase, right: io.TextIOBase
+    ) -> SymbolicStreamComparatorResult:
         comparator = SymbolicStreamComparator(left, right)
         while comparator._hasNextChunk():
             if comparator._compareNextChunk():
                 continue
             else:
-                return False
-        return True
+                return SymbolicStreamComparatorResult(False, list(comparator._debug))
+        return SymbolicStreamComparatorResult(True, list(comparator._debug))

@@ -29,6 +29,7 @@ from unittest.mock import patch
 from .utils import makeTmpDirOrDie, perform_test
 
 from electronic_symbol_generator_for_cad import SymbolGeneratorCli
+from electronic_symbol_generator_for_cad.s_expr import SymbolicStreamComparator
 
 input_file = "mc_68000_plcc68.md"
 input_files = [
@@ -49,12 +50,40 @@ output_files = [
 ]
 
 
+def perform_test_s_expr(
+    tmp_dir: str,
+    source_dir: str,
+    expected_dir: str,
+    baseArgs: list[str],
+    inputFileName: str,
+    outputFileName: str,
+):
+    with patch.object(
+        sys, "argv", baseArgs + [os.path.join(source_dir, inputFileName)]
+    ):
+        SymbolGeneratorCli().run()
+        # Checks that json source files are skipped
+        actualResultPath = os.path.join(tmp_dir, outputFileName)
+        expectedResultPath = os.path.join(expected_dir, outputFileName)
+        assert os.path.exists(actualResultPath)
+        with open(actualResultPath, encoding="utf-8") as actual:
+            with open(expectedResultPath, encoding="utf-8") as expected:
+                comparator = SymbolicStreamComparator(actual, expected)
+                result = comparator.areEqual(actual, expected)
+                if not (result.result):
+                    for i in result.context:
+                        print(f"<=  {i[0]}")
+                        print(f" => {i[1]}")
+                        print()
+                    assert result.result
+
+
 def test_that_format_kicad6_works_as_expected():
     tmp_dir = makeTmpDirOrDie(time.time())
     source_dir = os.path.join(".", "tests", "data")
     expected_dir = os.path.join(".", "tests", "data.expected")
     baseArgs = ["prog", "--format", "kicad-s-expr", "--into", tmp_dir]
     for input_file, output_file in zip(input_files, output_files):
-        perform_test(
+        perform_test_s_expr(
             tmp_dir, source_dir, expected_dir, baseArgs, input_file, output_file
         )

@@ -32,14 +32,24 @@ def test_areEquals_recognizes_equivalent_symbolic_expressions():
     d
     )"""
 
-    assert SymbolicStreamComparator.areEqual(io.StringIO(exprA), io.StringIO(exprA))
-    assert SymbolicStreamComparator.areEqual(io.StringIO(exprA), io.StringIO(exprB))
-    assert SymbolicStreamComparator.areEqual(io.StringIO(exprB), io.StringIO(exprA))
+    assert SymbolicStreamComparator.areEqual(
+        io.StringIO(exprA), io.StringIO(exprA)
+    ).result
+    assert SymbolicStreamComparator.areEqual(
+        io.StringIO(exprA), io.StringIO(exprB)
+    ).result
+    assert SymbolicStreamComparator.areEqual(
+        io.StringIO(exprB), io.StringIO(exprA)
+    ).result
 
 
 def test_areEquals_supports_symbolic_expressions_with_different_size():
     exprA = "(a b c d)"
     exprB = "(a b c)"
 
-    assert not SymbolicStreamComparator.areEqual(io.StringIO(exprA), io.StringIO(exprB))
-    assert not SymbolicStreamComparator.areEqual(io.StringIO(exprB), io.StringIO(exprA))
+    assert not SymbolicStreamComparator.areEqual(
+        io.StringIO(exprA), io.StringIO(exprB)
+    ).result
+    assert not SymbolicStreamComparator.areEqual(
+        io.StringIO(exprB), io.StringIO(exprA)
+    ).result
